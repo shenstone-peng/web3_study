@@ -30,8 +30,8 @@
 
 ### W2-1作业：
 
-**[code link](https://github.com/shenstone-peng/web3_study/blob/main/w2_build/bankless.sol)**
-**[excute process link](https://github.com/shenstone-peng/web3_study/blob/main/w2_build/w2.md)**
+[**[code link]()**]
+[**[excute process link]()**]
 
 *   使用Hardhat部署修改后的Counter
 
