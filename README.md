@@ -45,3 +45,5 @@ W2_2作业
    * 仅有⽼师（⽤modifier权限控制）可以添加和修改学⽣分数
    * 分数不可以⼤于 100； 
 * 编写合约 Teacher 作为⽼师，通过 IScore 接⼝调⽤修改学⽣分数。
+* [code link](https://github.com/shenstone-peng/web3_study/tree/main/w2_build/w2-2/contracts)
+* [process link](https://github.com/shenstone-peng/web3_study/blob/main/w2_build/w2-2/w2-2.md)
