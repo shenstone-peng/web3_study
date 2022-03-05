@@ -29,15 +29,12 @@
 ## week\_2
 
 ### W2-1作业：
-
-
-*   使用Hardhat部署修改后的Counter
-
-*   使用Hardhat测试Counter
-
-*   写一个脚本调用count()
-*   [**[code link](https://github.com/shenstone-peng/web3_study/blob/main/w2_build/bankless.sol)**]
-*   [**[process link](https://github.com/shenstone-peng/web3_study/blob/main/w2_build/w2.md)**]
+* 编写⼀个Bank合约：
+* 通过 Metamask 向Bank合约转账ETH
+* 在Bank合约记录每个地址转账⾦额
+* 编写 Bank合约withdraw(), 实现提取出所有的 ETH
+*   [**[code link](https://github.com/shenstone-peng/web3_study/blob/main/w2_build/w2-1/bankless.sol)**]
+*   [**[process link](https://github.com/shenstone-peng/web3_study/blob/main/w2_build/w2-1/w2.md)**]
 
 ### W2-2作业
 * 编写合约Score，⽤于记录学⽣（地址）分数：
