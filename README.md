@@ -30,14 +30,14 @@
 
 ### W2-1作业：
 
-[**[code link](https://github.com/shenstone-peng/web3_study/blob/main/w2_build/bankless.sol)**]
-[**[excute process link](https://github.com/shenstone-peng/web3_study/blob/main/w2_build/w2.md)**]
 
 *   使用Hardhat部署修改后的Counter
 
 *   使用Hardhat测试Counter
 
 *   写一个脚本调用count()
+*   [**[code link](https://github.com/shenstone-peng/web3_study/blob/main/w2_build/bankless.sol)**]
+*   [**[process link](https://github.com/shenstone-peng/web3_study/blob/main/w2_build/w2.md)**]
 
 ### W2-2作业
 * 编写合约Score，⽤于记录学⽣（地址）分数：
