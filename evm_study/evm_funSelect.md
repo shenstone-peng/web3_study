@@ -187,7 +187,7 @@ JUMPI，这次bool检测通过，执行跳转动作。更新程序计数器到89
 
 ## EVM Playground
 
-我强烈推荐你访问这个[链接](https://www.evm.codes/playground?unit=Wei&callData=0x6057361d000000000000000000000000000000000000000000000000000000000000000a&codeType=Mnemonic&code=%27!0~0KCALLDATALOAD~2z2qw!E0~3KSHR~5z2qwDUP1~6(X4_2E64CEC1~7KEQ~12z5qwX2_3B~13(*I~16z3qwDUP1~17KX4_6057361D~18KEQ~23z5qwX2_59~24K*I~27z3qwkY%20wX30_0~28KwZGV59z31q!1~60%20%7BG%7DW%7DKwkYwX26_0~62z2qKZstore%7Buint256V89z27q!0%20ZContinueW.KK%27~%20ZOffset%20z%20%7Bprevious%20instruFoccupies%20w%5Cnq)s%7DwkZThes-ar-just%20paddingNenabl-usNgetN_%200xZ%2F%2F%20Yprogram%20counter%2059%20%26%2089XPUSHW%20funFexecution...V%7D)codew*DEST~N%20to(wwGretrieve%7BFction%20-e%20*JUMP)%20byte(%20K!X1_%01!()*-FGKNVWXYZ_kqwz~_)
+我强烈推荐你访问这个[链接](https://www.evm.codes/playground?unit=Wei\&callData=0x6057361d000000000000000000000000000000000000000000000000000000000000000a\&codeType=Mnemonic\&code=%27!0\~0KCALLDATALOAD\~2z2qw!E0\~3KSHR\~5z2qwDUP1\~6\(X4_2E64CEC1\~7KEQ\~12z5qwX2_3B\~13\(*I\~16z3qwDUP1\~17KX4_6057361D\~18KEQ\~23z5qwX2_59\~24K*I\~27z3qwkY%20wX30_0\~28KwZGV59z31q!1\~60%20%7BG%7DW%7DKwkYwX26_0\~62z2qKZstore%7Buint256V89z27q!0%20ZContinueW.KK%27\~%20ZOffset%20z%20%7Bprevious%20instruFoccupies%20w%5Cnq\)s%7DwkZThes-ar-just%20paddingNenabl-usNgetN_%200xZ%2F%2F%20Yprogram%20counter%2059%20%26%2089XPUSHW%20funFexecution...V%7D\)codew*DEST\~N%20to\(wwGretrieve%7BFction%20-e%20*JUMP\)%20byte\(%20K!X1_%01!\(\)*-FGKNVWXYZ_kqwz\~_)
 ，这是一个evm操练场，我在这里设置了我们刚刚运行的字节码，你可以互动看到stack的变化，我还包括了JUMPDEST，所以你可以看到在最后的JUMPI之后发生了什么。>
 EVM操练场也将有助于你对程序计数器的理解，在代码中，你会看到每个命令旁边的注释，其偏移量代表其程序计数器的位置。
 你还会看到运行按钮左边的calldata输入，试着把它改成retrieve()的调用数据0x2e64cec1，看看执行情况如何变化。只要点击运行，然后点击右上方的“步进”按钮，就可以逐步调试每个操作码。
