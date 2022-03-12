@@ -1,5 +1,5 @@
 # 1. 发行一个721 token
-[contract_code](../project_code/contracts/myNft.sol)  
+[ERC721_contract_code](../project_code/contracts/myNft.sol)  
 [deploy_code](../project_code/scripts/deploy_erc721.js)
 
 # 2.使用ether.js解析 ERC721 转账事件

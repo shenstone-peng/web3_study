@@ -1,6 +1,6 @@
 
 ## 1. token可动态增发 
-[contract_code](../project_code/contracts/shenstone.sol)  
+[ERC20_contract_code](../project_code/contracts/shenstone.sol)  
 调用mint函数，增发给owner  
 ---
 调用前  
@@ -18,7 +18,7 @@
 ![transferEvent](./images/transfer.png)
 ---
 ## 3. deposit 存款    
-[contract_code](../project_code/contracts/vault.sol)  
+[VAULT_contract_code](../project_code/contracts/vault.sol)  
 approve记录  
 ![approve](./images/approve.png)
 ---

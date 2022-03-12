@@ -44,7 +44,7 @@
 * [**[code link](https://github.com/shenstone-peng/web3_study/tree/main/w2_build/w2-2/contracts)**]
 * [**[process link](https://github.com/shenstone-peng/web3_study/blob/main/w2_build/w2-2/w2-2.md)**]
 
-W3_1作业 [HERE](./w3_build/w3-1/README.md)
+### W3_1作业 [HERE](./w3_build/w3-1/README.md)
 * 发⾏⼀个 ERC20 Token： 
   * 可动态增发（起始发⾏量是 0） 
   * 通过 ethers.js. 调⽤合约进⾏转账
@@ -53,7 +53,7 @@ W3_1作业 [HERE](./w3_build/w3-1/README.md)
   * 编写 withdraw ⽅法，提取⽤户⾃⼰的存款 （前端调⽤）
   * 前端显示⽤户存款⾦额
 
-W3_2作业 [HERE](./w3_build/w3-2/README.md)
+### W3_2作业 [HERE](./w3_build/w3-2/README.md)
 * 发行一个 ERC721 Token
    * 使用 ether.js 解析 ERC721 转账事件(加分项：记录到数据库中，可方便查询用户持有的所有NFT)
    * (或)使用 TheGraph 解析 ERC721 转账事件
