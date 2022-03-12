@@ -37,6 +37,6 @@ deposit event日志
 ![after](./images/withAfter.png)
 ---
 ## 5. 前端显示存款  
-[front-end_code](../project_code/vue_project/components/erc20.vue)
+[front-end_code](../project_code/vue_project/components/erc20.vue)  
 ![vault](./images/vault.png)
 
