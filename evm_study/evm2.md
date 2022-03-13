@@ -42,7 +42,7 @@ contract Storage {
 这5个字节代表了 "自由内存指针(free memory pointer)"的初始化。为了充分了解这意味着什么，以及这些字节的作用，我们必须首先建立你对管理合约内存(memory)的数据结构的认知。
 ## 内存(memory)的数据结构
 合约内存是一个简单的字节数组，数据可以以32字节（256位）或1字节（8位）为单位存储，以32字节（256位）为单位读取。下面的图片说明了这种结构以及合约内存的读/写功能。  
-![MEM_STRUCT](./images/MEM_STRUCT.png)
+![MEM_STRUCT](./images/MEM_STRUCT.png)  
 这种功能是由3个操作码决定的，这些操作码对内存进行操作。
 - MSTORE(x, y) - 从内存位置 "x "开始存储一个32字节（256位）的值 "y"。
 - MLOAD(x) - 从内存位置 "x "开始读取一个32字节（256位）的值并加载到调用栈(stack)上
@@ -50,11 +50,11 @@ contract Storage {
 你可以把内存位置看成是开始写/读数据的数组索引。如果你想写/读超过一个字节的数据，你只需从下一个数组索引继续写或读。
 ## EVM Playground
 这个EVM操练场([EVM Playground](https://www.evm.codes/playground?unit=Wei&codeType=Mnemonic&code=%27Vg*\(_I...1W0GJ_!!!!z00FK22WJQ0Y22z20F8K33W33Q1Y33z21F8d\(v0Z0-Jq00Xd\(vJZJ-64q20Xdv33Z33-65q21Xpp%27~N%20locatioCzG1_wppVv7o7hBcall%20stack%20from~uIIIIq\(%20ofNzp%5Cnj%20bytegSTOREdw\)*_%200xZ9BY9Chex%7DzXpM\)W%20at~V%2F%2F%20MQ%20%7B0x2N%20memoryKwg8%201j_J32I11GpPUSHFpMgCn%20Be%209%20i7%20t*%20J\)LOAD\(js!uu%01!\(\)*79BCFGIJKNQVWXYZ_dgjpquvwz~_))将有助于巩固你对这3个操作码的理解以及内存位置的工作原理。点击 "运行 "和右上方的卷曲箭头，步进操作码，看看堆栈和内存是如何被改变的。(在操作码的上方有注释，描述了每一部分的作用)  
-![EVM_PL](./images/EVM_PL.png)
+![EVM_PL](./images/EVM_PL.png)  
 当执行完上面的操作码，你可能会注意到一些奇怪的现象。首先，当我们写入一个单字节数据0x22到内存中，然后用MLOAD8到内存位置0x20(十进制：32)取数据时，得到的不是    
-![TH](./images/TH.png)
+![TH](./images/TH.png)  
 而是    
-![ACTUAL](./images/ACTUAL.png)
+![ACTUAL](./images/ACTUAL.png)  
 你也许会问了，我们只写入了一个字节，怎么会有这么多的零？
 ## Memory Expansion(内存拓展)
 当你的合约写到内存时，你必须为所写的字节数付费。如果你写到一个以前没有被写过的内存区域，那么第一次使用该区域会有一个额外的内存扩展费用。
@@ -116,14 +116,14 @@ contract MemoryLane {
 我不能不强调，使用EVM Playground和自己按步执行操作码是多么重要。这将大大促进你的学习。现在让我们来看看这6个部分。  
 ## Free Memory Pointer初始化（EVM Playground Lines 1-15）
 首先，咱已经在上面初步讨论过FreeMemoryPointer的初始化，一个0x80的值被放入stack中。这是FreeMemoryPointer的值，由solidity的内存布局决定。在这个阶段，我们的内存没有任何东西.  
-![MEM0](./images/MEM_0.png)
+![MEM0](./images/MEM_0.png)  
 接下来，把FreeMemoryPointer的内存位置0x40放到stack中。  
-![MEM1](./images/MEM_1.png)
+![MEM1](./images/MEM_1.png)  
 最后，我们调用MSTORE，从stack中弹出0x40，以确定写入内存的位置，第二个值0x80作为写入内容。  
 这样stack就空了，但现在内存中存在一些值了。这个内存表示是十六进制的，每个字符代表4位。  
 我们在内存中有192个十六进制字符，这意味着我们有96个字节（1字节=8比特=2个十六进制字符）。  
 如果我们参考Solidity的内存布局，我们知道前64个字节将被分配为scratch空间，接下来的32个字节将是Free Memory Pointer。  
-![MEM2](./images/MEM_2.png)
+![MEM2](./images/MEM_2.png)  
 ## 内存分配变量 "a "和更新Free Memory Pointer（EVM Playground第16-34行）
 对于剩下的部分，为了简洁起见，我们将跳到每一部分的结束状态，并对所发生的事情做一个高层次的概述。各个操作码的步骤可以通过EVM操场看到。  
 接下来为变量 "a"（bytes32[5]）分配内存，并更新Free Memory Pointer。  
@@ -133,7 +133,7 @@ contract MemoryLane {
 在这种情况下，5*32的计算结果是160，即十六进制的0xa0。我们可以看到这个值被推入stack，并与当前的Free Memory Pointer位置0x80（十进制为128）相加，得到新的Free Memory Pointer。  
 这将返回0x120（十进制288），我们可以看到它已被写入Free Memory Pointer位置。  
 调用堆栈将变量 "a "的内存位置0x80保留在stack中，这样它就可以在以后需要时引用它。0xffff代表一个JUMP位置，可以被忽略，因为它与内存操作无关。  
-![MEM3](./images/MEM_3.png)
+![MEM3](./images/MEM_3.png)  
 ## 内存初始化变量"a"（EVM Playground第35-95行）
 现在，内存已经分配完毕，Free Memory Pointer也已更新，我们需要为变量 "a "初始化内存空间。由于该变量只是被声明而没有被分配，它将被初始化为零值。  
 为了做到这一点，EVM使用CALLDATACOPY，它接收了3个变量。  
@@ -142,17 +142,17 @@ contract MemoryLane {
 - size (要复制的字节大小)
 在我们的例子中，memoryOffset是变量 "a "的内存位置（0x80）。calldataOffset是我们calldata的实际大小，因为我们不想复制任何calldata，我们想用零值初始化内存。最后，大小是0xa0或160字节，因为这是该变量的大小。  
 我们可以看到我们的内存已经扩展到288字节（这包括zero slot），stack再次持有变量的内存位置和调用堆栈上的一个JUMP位置。  
-![MEM4](./images/MEM_4.png)
+![MEM4](./images/MEM_4.png)  
 ## 内存分配变量 "B"和更新Free Memory Pointer（EVM Playground第96-112行）
 这与变量 "a "的内存分配和Free Memory Pointer更新相同，只是这次是针对 "byte32[2]内存b"。  
 Free Memory Pointer被更新为0x160（十进制352），这等于之前的Free Memory Pointer位置288加上新变量的大小（字节64）。  
 
 请注意，Free Memory Pointer在内存中已经更新到了0x160，我们现在在stack上有变量 "b "的内存位置（0x120）。  
-![MEM5](./images/MEM_5.png)
+![MEM5](./images/MEM_5.png)  
 ## 内存初始化变量"b"（EVM Playground第113-162行）
 与变量 "a "的内存初始化相同。  
 请注意，内存已经增加到352字节。stack仍然保存着2个变量的内存位置。  
-![MEM6](./images/MEM_6.png)
+![MEM6](./images/MEM_6.png)  
 ## 为b[0]赋值（EVM Playground第163-207行）
 最后，我们要给数组 "b "的索引0赋值。代码指出b[0]应该有一个1的值。  
 这个值0x01被push到stack的。接下来会发生一个位的左移，但是位移的输入是0，意味着我们的值不会改变。  
@@ -171,6 +171,6 @@ ADD是用来将这个偏移值添加到变量 "b "的内存位置。鉴于我们
 注意在实际的remix中，有几个变量留在stack上了，一个JUMP位置和函数签名，但是它们与内存操作无关，因此在EVM playground中被省略了。  
 我们的内存已经被更新，包括b[0]=1的赋值，在我们内存的倒数第三行，一个0值已经变成了1。  
 你可以验证该值是否在正确的内存位置，b[0]应该占据位置0x120 - 0x13f（字节289 - 320）。  
-![MEM7](./images/MEM_7.png)
+![MEM7](./images/MEM_7.png)  
 我们终于搞定啦，吸收这么多知识，帮助我们对合约内存的工作有了坚实的理解。下次我们需要写一些solidity代码时，这将对我们有好处。  
 当你执行一些合约操作码，看到某些内存位置不断pop出（0x40）时，你现在就会知道它们的确切含义。  
