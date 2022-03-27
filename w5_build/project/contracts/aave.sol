@@ -58,17 +58,22 @@ contract aaveFlashLoan{
         TransferHelper.safeApprove(asset, v3Router, type(uint).max);
         TransferHelper.safeApprove(swapToken, v3Router, type(uint).max);
         //2.transfer from tokenA to tokenB on uniswapV2       (tokenA:0; tokenB:20)
-        //2.1 check whether pair is existed 
-        address tokenPairAddr = IUniswapV2Factory(v2Factory).getPair(
-            asset,
-            swapToken
-        );
-        require(tokenPairAddr != address(0), "null pair on uniV2");
+        //2.1 check whether pair is existed
+        {
+            address tokenPairAddr = IUniswapV2Factory(v2Factory).getPair(
+                asset,
+                swapToken
+            );
+            require(tokenPairAddr != address(0), "null pair on uniV2");
+        }
+        uint[] memory amountOut;
         //2.2 start swap 
-        address[] memory V2path = new address[](2);
-        V2path[0] = asset;
-        V2path[1] = swapToken;
-        uint[] memory amountOut= IUniswapV2Router02(v2Router).swapExactTokensForTokens(amount, 0, V2path, address(this), block.timestamp);
+        {
+            address[] memory V2path = new address[](2);
+            V2path[0] = asset;
+            V2path[1] = swapToken;
+            amountOut= IUniswapV2Router02(v2Router).swapExactTokensForTokens(amount, 0, V2path, address(this), block.timestamp);
+        }
         
         //3.transfer from tokenB to tokenA on unisapV3        (tokenA:12; tokenB:0)
         uint24 poolFee = 3000;
