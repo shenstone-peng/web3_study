@@ -25,4 +25,6 @@ link here: [交易详情链接](https://kovan.etherscan.io/tx/0x8c1e2525c323c002
    * 使用 token A 在 Uniswap V2 中交易兑换 token B，然后在 Uniswap V3 token B 兑换为 token A
    * token A 还款给 AAVE
 
-link here: [合约代码链接](./project/contracts/aave.sol)
+link here: [合约代码链接](./project/contracts/aave.sol)  
+link here: [transctions txns](https://rinkeby.etherscan.io/tx/0xb50eda9a5e9ce3e06a7c5891a2370e2b7213ed5aed546ba039a786a0c479b1aa)
+![闪电贷记录](./images/aave.png)
