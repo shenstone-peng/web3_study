@@ -28,36 +28,37 @@ contract aaveFlashLoan{
     //bytes calldata params,
     //uint16 referralCode
     function callFlashLoan (address tokenA, address tokenB, uint _amount) external {
-        //1.approve tokenA to pool
-        //2.call flashLoanSimple
+        
+        //call flashLoanSimple
         bytes memory data = abi.encode(msg.sender,tokenB);
-        POOL.flashLoanSimple(address(this), tokenA, _amount, data,1);
+        POOL.flashLoanSimple(address(this), tokenA, _amount, data,0);
 
     }
     function executeOperation(
-    address asset,
+    address asset,    //dai
     uint256 amount,
-    uint256 ,
+    uint256 premium,
     address ,
     bytes calldata params
     ) external returns (bool){
-        //background :asset :token A . amount :x 
-        //buy tokenB with amount(x) of tokenA on uniswapV2
-        //buy more tokenA (x + deltax) with tokenB on uniswapV3
+        //background :asset :dai . amount :x 
+        //buy SPA with x dai on uniswapV2
+        //sell SPA to get x+deltax dai on uniswapV3
         //payback amount(x) of tokenA to aavePOOL 
-        //transfer amount(deltax) to user
+        //transfer deltax dai to user
         //start code
+        uint totalDebt = amount + premium;
         //0.decode params
         (address user, address swapToken) = abi.decode(
             params,
             (address, address)
         );
-        //1.approve tokenA & tokenB to v2router & v3 router   (tokenA:10; tokenB:0)
+        //1.approve tokenA & tokenB to v2router & v3 router   (dai:1000; SPA:0)
         TransferHelper.safeApprove(asset, v2Router, type(uint).max);
         TransferHelper.safeApprove(swapToken, v2Router, type(uint).max);
         TransferHelper.safeApprove(asset, v3Router, type(uint).max);
         TransferHelper.safeApprove(swapToken, v3Router, type(uint).max);
-        //2.transfer from tokenA to tokenB on uniswapV2       (tokenA:0; tokenB:20)
+        //2.transfer from tokenA to tokenB on uniswapV2       (dai:0; SPA:500)
         //2.1 check whether pair is existed
         {
             address tokenPairAddr = IUniswapV2Factory(v2Factory).getPair(
@@ -72,17 +73,17 @@ contract aaveFlashLoan{
             address[] memory V2path = new address[](2);
             V2path[0] = asset;
             V2path[1] = swapToken;
-            amountOut= IUniswapV2Router02(v2Router).swapExactTokensForTokens(amount, 0, V2path, address(this), block.timestamp);
+            amountOut= IUniswapV2Router02(v2Router).swapExactTokensForTokens(amount, 0, V2path, address(this), block.timestamp+200);
         }
         
         //3.transfer from tokenB to tokenA on unisapV3        (tokenA:12; tokenB:0)
-        uint24 poolFee = 3000;
+        
         uint256 amountAOut = 
             IV3SwapRouter(v3Router).exactInputSingle(
                 IV3SwapRouter.ExactInputSingleParams({
                     tokenIn: swapToken,
                     tokenOut: asset,
-                    fee: poolFee,
+                    fee: uint24(3000),
                     recipient: address(this),
                     amountIn: amountOut[1],
                     amountOutMinimum: 0,
@@ -91,10 +92,11 @@ contract aaveFlashLoan{
             );
 
         //4.transfer 10 tokenA to aave POOL               (tokenA:2; tokenB:0)
-        require(amountAOut > amount,"don't have enough asset to pay back, call flashloan failed");
-        TransferHelper.safeTransfer(asset, address(POOL), amount);
+        require(amountAOut > totalDebt,"don't have enough asset to pay back, call flashloan failed");
+        
         //5.transfer 2 tokenA to user
-        TransferHelper.safeTransfer(asset, user, amountAOut - amount);
+        TransferHelper.safeTransfer(asset, user, amountAOut - totalDebt);
+        IERC20(asset).approve(ADDRESSES_PROVIDER.getPool(), totalDebt);
         return true;
     }
 }
