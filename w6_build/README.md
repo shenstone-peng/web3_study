@@ -49,13 +49,23 @@ link here: [部署合约脚本](./project/scripts/622deploy_treasure.js)
 ## 3. 管理地址之一发起提案，提取Treasury中amount数量的eth到某一地址  
 link here: [发起提案脚本](./project/scripts/623submitWithdraw.js)  
 ![submitTransction](./images/submitTransaction.png)  
+  
+    
+    
 发起提案后，查询治理合约Gov的transction数组  
 ![tx_waitforConfirm](./images/tx_waitforConfirm.png)  
 
 ## 4. 管理地址参与确认，并由某一管理地址执行该提款  
 link here: [确认+提款脚本](./project/scripts/624withdraw.js)  
+  
+    
+
 提款到指定地址成功  
 ![tx_toReciever](./images/tx_toReciever.png)  
+
+
+
+
 可以看到此时，transctions数组中，标记为已执行  
 ![excuted](./images/excuted.png)
 
