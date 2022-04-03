@@ -17,7 +17,8 @@ link here: [期权合约交互](https://rinkeby.etherscan.io/token/0x7e769174505
 ![UTC时间戳转换正常日期](./images/UTCToGMT.png)  
 
 ## 3. 添加流动性  
-link here: [添加流动池TX](https://rinkeby.etherscan.io/tx/0x04cf6a882988147ef9fe00bcc481c964fe0865081f01658b2b3ff8a20f98941f)
+link here: [添加流动池TX](https://rinkeby.etherscan.io/tx/0x04cf6a882988147ef9fe00bcc481c964fe0865081f01658b2b3ff8a20f98941f)  
+
 ![流动池](./images/liquditypool.png)  
 
 
@@ -50,21 +51,21 @@ link here: [部署合约脚本](./project/scripts/622deploy_treasure.js)
 link here: [发起提案脚本](./project/scripts/623submitWithdraw.js)  
 ![submitTransction](./images/submitTransaction.png)  
   
-    
-    
+---   
+
 发起提案后，查询治理合约Gov的transction数组  
 ![tx_waitforConfirm](./images/tx_waitforConfirm.png)  
 
 ## 4. 管理地址参与确认，并由某一管理地址执行该提款  
 link here: [确认+提款脚本](./project/scripts/624withdraw.js)  
   
-    
+---
 
 提款到指定地址成功  
 ![tx_toReciever](./images/tx_toReciever.png)  
 
 
-
+---
 
 可以看到此时，transctions数组中，标记为已执行  
 ![excuted](./images/excuted.png)
