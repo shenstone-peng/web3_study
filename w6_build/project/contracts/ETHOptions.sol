@@ -31,7 +31,8 @@ contract ETHOptions is UniOptV1ERC20{
     }
     
     function takeETH() public{
-        require(block.timestamp > deadline);
+        require(block.timestamp > deadline, "not start");
+        require(block.timestamp < deadline + 1 days, "end now");
         uint amount = this.balanceOf(address(msg.sender));
         _burn(msg.sender, amount);
         uint needPay = amount.mul(assetPrice);//needpay = x*10^18 * y dai

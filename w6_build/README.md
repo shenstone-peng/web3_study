@@ -29,10 +29,12 @@ link here: [添加流动池TX](https://rinkeby.etherscan.io/tx/0x04cf6a882988147
 link here: [购买期权token](https://rinkeby.etherscan.io/tx/0x032018cb975fbdc16f6c87614a32a0c1a4147862f1c7636746f9643bc3a91454)  
 ![购买期权token](./images/BUYOPTIONS.png)  
 
-## 5. 用户兑换资产  //toDo 4.4.2022
+## 5. 用户兑换资产    
+link here: [用户行权，兑换资产](https://rinkeby.etherscan.io/tx/0xa9ce3e68f1c26c7fb4cec99adf1d613122d967d8175ae6ab399305ab10630d1a)  
+![用户行权，兑换资产](./images/takeETH.png)  
 
 
-## 6. 项目方销毁过期token   //toDo 4.4.2022
+## 6. 项目方销毁过期token   //toDo 4.5.2022
 
 
 
