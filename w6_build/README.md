@@ -32,6 +32,7 @@ link here: [购买期权token](https://rinkeby.etherscan.io/tx/0x032018cb975fbdc
 ## 5. 用户兑换资产    
 link here: [用户行权，兑换资产](https://rinkeby.etherscan.io/tx/0xa9ce3e68f1c26c7fb4cec99adf1d613122d967d8175ae6ab399305ab10630d1a)  
 ![用户行权，兑换资产](./images/takeETH.png)  
+![内部交易，获得ETH](./images/takeETH2.png)  
 
 
 ## 6. 项目方销毁过期token   //toDo 4.5.2022
