@@ -35,10 +35,11 @@ link here: [用户行权，兑换资产](https://rinkeby.etherscan.io/tx/0xa9ce3
 ![内部交易，获得ETH](./images/takeETH2.png)  
 
 
-## 6. 项目方销毁过期token   //toDo 4.5.2022
+## 6. 项目方销毁过期token   
+link here: [销毁过期token](https://rinkeby.etherscan.io/tx/0x120c7bef3e75fd694152a5d98ce8585024ccaef9480ec1c29a8d7aaebe56688c#internal)  
 
 
-
+![selfdestruct](./images/suicede.png)
 
 ---
 # Week 6-2
