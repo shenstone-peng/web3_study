@@ -24,8 +24,6 @@ link here: [部署合约脚本](./project/scripts/deploy_mytokenmarket.js)
 ## W4_2作业
 ### 1 在上一次作业的基础上：
 1.0 部署sushitoken，masterchef和add lptoken(mycoin,weth)  
-[code](./sushiswap/contracts/)  
-
 ![sushi](./images/sushi.png)  
 
 1.1 完成代币兑换后，直接质押 MasterChef  
