@@ -1,6 +1,6 @@
 # w4-1
 ## 1 部署自己的 ERC20 合约 MyToken  
-[code](./my_project_code/contract/shenstone.sol)  
+link here: [mytoken_code](./project/contract/shenstone.sol)  
 ## 2 编写合约 MyTokenMarket 实现：
 ### 2.1 AddLiquidity():函数内部调用 UniswapV2Router 添加 MyToken 与 ETH 的流动性
 ```
@@ -42,20 +42,20 @@ function BuymyTokenWithExactETH(
 
 ## 3 整体流程
 ### 3.1 部署uniswapFactory合约  
-![uni_factory](./images/uni_factory.png)  
-[01_deploy_factory](./uniswap/v2-core/scripts/01_deploy_factory.js)  
+![uni_factory](./images/uni_factory.png)   
+link here: [01_deploy_factory](./uniswap/v2-core/scripts/01_deploy_factory.js)    
 
-### 3.2 部署weth合约以及uniswapRouter合约
-![uni_router](./images/uni_router.png)
-[02_deploy_weth_router](./uniswap/v2-periphery/scripts/01_deploy_router.js)  
+### 3.2 部署weth合约以及uniswapRouter合约  
+![uni_router](./images/uni_router.png)  
+link here: [02_deploy_weth_router](./uniswap/v2-periphery/scripts/01_deploy_router.js)   
 ### 3.3 部署mytoken以及mint  
 ![mytoken](./images/mytoken.png)  
 
 ### 3.4 添加mytoken和eth的流动性，以及用eth购买token
-![add_buy](./images/add_buy.png)
+![add_buy](./images/add_buy.png)  
 
-[code_link](./my_project_code/contract/MyTokenMarket.sol)
-[script_link](./my_project_code/scripts/deploy_mytokenmarket.js)
+link here: [code_link](./project/contract/MyTokenMarket.sol)   
+link here: [script_link](./project/scripts/deploy_mytokenmarket.js)    
 
 
 ## W4_2作业
@@ -117,5 +117,5 @@ function withdrawLiquidity(address _lptoken)external{
         IERC20(_lptoken).safeTransferFrom(address(this), msg.sender, amount);
     }
 ```
-[code_link](./my_project_code/contract/MyTokenMarket_sushi.sol)
-[script_link](./my_project_code/scripts/deploy_mytokenSushiMarket.js)
+[code_link](./project/contract/MyTokenMarket_sushi.sol)
+[script_link](./project/scripts/deploy_mytokenSushiMarket.js)
