@@ -32,14 +32,7 @@ async function main() {
   console.log("添加流动性");
   let b = await myerc20.balanceOf(owner.address);
   console.log("持有token:" + ethers.utils.formatUnits(b, 18));
-/*
-  let myFactory = await ethers.getContractAt("UniswapV2Factory", 
-        factoryAddr.address,
-        owner);
-  let lp = await myFactory.getPair(ERC20Addr.address);
-  console.log("lp : %s", lp);
-  
-*/
+
 
   let buyEthAmount = ethers.utils.parseUnits("10", 18);
   out = await m_MytokenMarket.BuymyTokenWithExactETH("0", { value: buyEthAmount })

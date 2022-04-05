@@ -30,11 +30,15 @@ contract MyTokenMarket{
     function AddLiquidity(
         uint amountMytokenDesired
     )  external  payable returns (uint amountA, uint amountETH, uint liquidity){
+        //从用户账户中转出amountMytokenDesired数量的coin到本合约，并授权给UniswapV2Router
         IERC20(coin).safeTransferFrom(msg.sender, address(this), amountMytokenDesired);
         IERC20(coin).safeApprove(UniswapV2Router, amountMytokenDesired);
+
+        //调用uniswapRouter添加[coin, weth]的流动性，最终添加了amountA数量的coin和amountETH数量的weth，获得liquidity数量的lpToken
         (amountA, amountETH, liquidity) = IUniswapV2Router01(UniswapV2Router).addLiquidityETH{value:msg.value}(coin, amountMytokenDesired,  0, 0, msg.sender, block.timestamp);
         //address lptoken = IUniswapV2Router01(UniswapV2Router).getPair(address(coin), address(WETH));
-        //if u still have some eth&coinA left , give back to u
+        
+        //退还多余的eth和token
         if (msg.value > amountETH) {
             bool ret = transfer(payable(msg.sender), msg.value - amountETH);
             require(ret, "withdraw failed");
