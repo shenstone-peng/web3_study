@@ -67,7 +67,7 @@
    * AddLiquidity():函数内部调用 UniswapV2Router 添加 MyToken 与 ETH 的流动性
    * buyToken()：用户可调用该函数实现购买 MyToken
 
-## [W4_2作业](./w4_build/README.md)
+## [W4_2作业](.https://github.com/shenstone-peng/web3_study/blob/main/w4_build/README.md#w4_2%E4%BD%9C%E4%B8%9A)
 * 在上一次作业的基础上：
    * 完成代币兑换后，直接质押 MasterChef
    * withdraw():从 MasterChef 提取 Token 方法
@@ -78,7 +78,7 @@
 * 作业：编写合约执行闪电贷（参考V2的ExampleFlashSwap）：
    * uniswapV2Call中，用收到的 TokenA 在 Uniswap V3 的 SwapRouter 兑换为 TokenB 还回到 uniswapV2 Pair 中。
    
-## [W5_2作业](./w5_build/README.md) 
+## [W5_2作业](https://github.com/shenstone-peng/web3_study/blob/main/w5_build/README.md#w5_2%E4%BD%9C%E4%B8%9A) 
 * 在一笔交易中完成（模拟闪电贷交易）
    * 在 AAVE 中借款 token A
    * 使用 token A 在 Uniswap V2 中交易兑换 token B，然后在 Uniswap V3 token B 兑换为 token A
