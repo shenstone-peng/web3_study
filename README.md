@@ -67,7 +67,7 @@
    * AddLiquidity():函数内部调用 UniswapV2Router 添加 MyToken 与 ETH 的流动性
    * buyToken()：用户可调用该函数实现购买 MyToken
 
-## [W4_2作业](.https://github.com/shenstone-peng/web3_study/blob/main/w4_build/README.md#w4_2%E4%BD%9C%E4%B8%9A)
+## [W4_2作业](https://github.com/shenstone-peng/web3_study/blob/main/w4_build/README.md#w4_2%E4%BD%9C%E4%B8%9A)
 * 在上一次作业的基础上：
    * 完成代币兑换后，直接质押 MasterChef
    * withdraw():从 MasterChef 提取 Token 方法
