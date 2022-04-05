@@ -94,7 +94,7 @@
    * 行权方法（用户角色）：在到期日当天，可通过指定的价格兑换出标的资产，并销毁期权Token
    * 过期销毁（项目方角色）：销毁所有期权Token 赎回标的。
 
-## [W6_2作业](./w6_build/README.md)
+## [W6_2作业](https://github.com/shenstone-peng/web3_study/blob/main/w6_build/README.md#week-6-2)
 * 实现⼀个通过 DAO 管理资⾦的Treasury：
    * 管理员可以从Treasury合约中提取资⾦withdraw（）
    * 治理Gov合约作为管理员
