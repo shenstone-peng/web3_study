@@ -1,12 +1,102 @@
-> 1. How would you call a function on a third party contract B, on behalf of the sender, through your contract A, guaranteeing no reverts?  
+> 1. How would you call a function on a third party contract B, on behalf of the sender, through your contract A, guaranteeing no reverts?   
+题目意思就是如何通过合约A代表发送者调用合约B的函数，答案很简单咯，就是[delegatecall](https://solidity-by-example.org/delegatecall/)。
+```javascript
+contract B{
+    uint value;
+    function test(){
+        value = 10;
+    }
+}
 
-> 2. What’s the main difference between a transparent proxy and a universal proxy?
+contract A{
+    function _delegate(address _B){
+        (bool suc,) = _B.delegatecall(abi.encodeWithSignature("test"));
+        require(suc, "delegate call failed");
+    }
+}
 
+
+```
+> 2. What’s the main difference between a transparent proxy and a universal proxy?   
+题目意思是透明合约和代理合约的主要区别是啥？社区里这篇[文章](https://learnblockchain.cn/article/1933#%E4%BB%A3%E7%90%86%E5%AD%98%E5%82%A8%E5%86%B2%E7%AA%81%E5%92%8C%E9%9D%9E%E7%BB%93%E6%9E%84%E5%8C%96%E5%AD%98%E5%82%A8)很详细的介绍了这俩代理模式的。可以瞅一瞅。
+```js
+contract TransparentProxy{
+    uint public value;
+    address public implementation;
+    address public owner;
+    constructor(address _v1){
+        implementation = _v1;
+        owner = msg.sender;
+    }
+    modifier onlyOwner(){
+        require(msg.sender == owner, "only owner");
+        _;
+    }
+    function _upgrade(address _newImplementation) public onlyOwner{
+        implementation = _newImplementation;
+    }
+
+    function _delegatecall() public {
+        (bool suc,) = implementation.delegatecall{value: msg.value}(msg.data);
+        require(suc, "delegatecall failed");
+    }
+}
+
+
+constract BoxV1{
+    uint public value;
+    function set(uint _value) public{
+        value = _value;
+    }
+}
+```
+
+```js
+constract UniversalProxy{
+    uint public value;
+    address public implementation;
+    constructor(address _v1){
+        implementation = _v1;
+        
+    }   
+    function _delegatecall() public {
+        (bool suc,) = implementation.delegatecall{value: msg.value}(msg.data);
+        require(suc, "delegatecall failed");
+    }
+}
+
+abstract contract Box{
+    uint public value;
+    address public implementation;
+    address public owner ;
+    modifier onlyOwner(){
+        require(msg.sender == owner, "only owner");
+        _;
+    }
+    funciton _upgrade(address _newimplementation) public onlyOwner {
+        implementation = _newimplementation;
+    }
+}
+constract BoxV1 is Box{
+    function set(uint _value) public {
+        value = _value;
+    }
+}
+```
+通用代理优势：通过在实现合约上定义所有函数，它可以依靠Solidity编译器检查任何函数选择器冲突。此外，通用代理的大小要小得多，从而使部署更便宜。在每次调用中，从存储中需要读取的内容更少，降低了开销。  
+通用代理劣势：如果一次合约忘记写upgrade函数，将会永远无法升级了。
 > 3. How could you destroy the implementation of, and effectively brick, a universal proxy?
 Assumptions:
 * You re not the owner of the proxy
 * No one owns the implementation
-* The implementation uses delegatecall to guarantee that the next implementation is not sterile
+* The implementation uses delegatecall to guarantee that the next implementation is not sterile  
+题目大概意思是，如何毁掉一个通用代理下的实现合约？条件如下：  
+- 你不是代理合约的owner
+- 没人是implementation合约的owner
+- implementation合约使用了delegatecall去保证每个implementation合约总是可升级的（可以看上面的通用代理劣势）
+
+答案：因为implementation合约里有调用delegatecall，去调用别的合约，那只要在该合约中加一个selfdestruct函数，即可完成对通用代理的毁灭。所以在implementation合约里最好不要使用selfdestruct和delegatecall函数。详细可以查看这篇[文档](https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#potentially-unsafe-operations)
+
 > 4. What’s the danger of using tx.origin for user authentication in a smart contract?
 
 > 5. What kind of proxy would you use to update an indefinite amount of instances with a single implementation upgrade? And how would it work?
