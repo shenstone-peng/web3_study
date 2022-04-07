@@ -37,13 +37,13 @@ contract TransparentProxy{
     }
 
     function _delegatecall() public {
-        (bool suc,) = implementation.delegatecall{value: msg.value}(msg.data);
+        (bool suc,) = implementation.delegatecall(msg.data);
         require(suc, "delegatecall failed");
     }
 }
 
 
-constract BoxV1{
+contract BoxV1{
     uint public value;
     function set(uint _value) public{
         value = _value;
@@ -52,7 +52,7 @@ constract BoxV1{
 ```
 
 ```js
-constract UniversalProxy{
+contract UniversalProxy{
     uint public value;
     address public implementation;
     constructor(address _v1){
@@ -60,7 +60,7 @@ constract UniversalProxy{
         
     }   
     function _delegatecall() public {
-        (bool suc,) = implementation.delegatecall{value: msg.value}(msg.data);
+        (bool suc,) = implementation.delegatecall(msg.data);
         require(suc, "delegatecall failed");
     }
 }
@@ -73,11 +73,11 @@ abstract contract Box{
         require(msg.sender == owner, "only owner");
         _;
     }
-    funciton _upgrade(address _newimplementation) public onlyOwner {
+    function _upgrade(address _newimplementation) public onlyOwner {
         implementation = _newimplementation;
     }
 }
-constract BoxV1 is Box{
+contract BoxV1 is Box{
     function set(uint _value) public {
         value = _value;
     }
