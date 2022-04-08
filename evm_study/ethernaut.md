@@ -99,13 +99,94 @@ Assumptions:
 
 > 4. What’s the danger of using tx.origin for user authentication in a smart contract?
 
-> 5. What kind of proxy would you use to update an indefinite amount of instances with a single implementation upgrade? And how would it work?
 
-> 6. Whats the deal with external vs public? When should you use external? When not? Why is it cheaper than public?
+参考答案：tx.origin是最开始调用合约的EOA账户（外部账户），如果你的合约A用了tx.origin来判断身份的话，最好就别执行了陌生的合约了，因为可能该合约会调用合约A，来转走你的钱。 如果你没看懂我在说啥的话，这里提供个[案例](https://solidity-by-example.org/hacks/phishing-with-tx-origin/)去参考下。
 
-> 7. 3rd party contract B with function b() writes to state in ways outside of your control. How would you simulate a call to b() from your contract A, observe the side effects, and then undo them entirely without reverting the main execution thread?
+> 5. What kind of proxy would you use to update an indefinite amount of instances with a single implementation upgrade? And how would it work?  
 
-> 8. Dynamically sized types in function signatures may be preceded by the keywords “memory”, “storage”, or “calldata”. When is it optimal to use each of them?
+题目大概意思是：什么样的代理可以让你只要升级一次实现，完成多个实例代理呢？  
+参考答案：使用信标代理，信标代理特征，再加一层合约，其保存着implementation，代理合约存着信标合约地址。示例如下：  
+```js
+contract Proxy {
+    address immutable beacon = 0xaaaaaaaaaaaaaaaaaaaaa;
+    fallback() external payable{
+        address implementation = beacon.implementation();
+        return implementation.delegatecall(msg.data);
+    }
+}
+
+contract Beacon{
+    address public implementation;
+    function upgrade(address _newImplementation) public onlyOwner{
+        implementation = _newImplementation;
+    }
+}
+
+```
+
+
+> 6. Whats the deal with external vs public? When should you use external? When not? Why is it cheaper than public?  
+**参考答案：**
+External函数一般是外部合约或者EOA账户调用，如果是合约内部其他函数调用，需要使用方法*this.xxx()*，Public函数外部内部都可以调用。  
+External函数更便宜是因为它的参数可以直接从calldata里取出，而Public函数则需要先把他们加载到Memory里，这会消耗更多的gas。  
+另外注意使用*this.xxx()*时，会改变msg.sender，具体如下：  
+You can only call external functions with this using *this.xxx()*. External uses params directly from calldata, without uploading them to memory.
+```js
+//EOA address: 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4  call A.callFunc()
+contract A{
+    address immutable caller = 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4;
+    function callFunc() public{
+        testPublic();
+        this.testExternal();
+    }
+
+    function testPublic() public{
+        require(caller == msg.sender, "when u use Public, the msg.sender is still the caller before");
+    }
+
+    function testExternal() external{
+        require(address(this) == msg.sender, "when u use Exteranl, the msg.sender is the contract self");
+    }
+}
+```
+
+> 7. 3rd party contract B with function b() writes to state in ways outside of your control. How would you simulate a call to b() from your contract A, observe the side effects, and then undo them entirely without reverting the main execution thread?  
+题目大概意思是：如何调用第三方合约的函数b()，并保证不会干扰你的主要执行线程。  
+参考答案：使用try...catch...，下面举个例子，安全转账ERC20。  
+```js
+
+contract B is ERC20{
+    function transferFrom(address _sender, address _to, uint _amount) public returns (bool){
+        //...
+    }
+}
+
+
+contract A{
+    function interactWithToken(uint _amount){
+        IERC20 token = IERC20(tokenAddress);
+        bool success;
+
+        try token.transferFrom(msg.sender, address(this), sendAmount)returns(bool _success){
+            success = _success;
+        } catch Error(string memory) {
+            success = false;
+        } catch (bytes memory) {
+            sucess = false;
+        }
+
+        if(success) {
+            // handle success case
+        } else {
+            // handle failutre case without reverting
+        }
+    }
+}
+```
+> 8. Dynamically sized types in function signatures may be preceded by the keywords “memory”, “storage”, or “calldata”. When is it optimal to use each of them?  
+题目大概意思是函数参数中的动态类型对象可以注明关键词"memory","storage","calldata"，分别什么情况下使用。
+参考答案：calldata基本是为external函数服务的。它跟memory很像，只是是不可更改的，memory是可更改的。storage类型只能在internal函数中传递，并作为引用传送，这样才能写入。
+ans: calldata is purely for external functions. It's similar to memory in most aspects but is immutable memory data is mutable. Storage types can only be passed within internal functions and are sent as reference to enable writing into them.
 
 > 9. Why do contract sizes decrease so much when you wrap the code of a modifier in an internal function?
 
