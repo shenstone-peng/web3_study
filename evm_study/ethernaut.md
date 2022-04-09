@@ -218,8 +218,11 @@ The ans is C.
 
 > 13. You use your smart account (a wallet contract you control) in L1 to deposit tokens in an L1 to L2 bridge. You eagerly wait for the tx to be relayed. It gets relayed. Ok 👍 But holy sheitz!! Your funds are lost. What happened?!
 
-> 14. When you compile a Solidity contract, you get "bytecode" and "deployedBytecode". They are almost identical. What's the difference? Where is the difference? And why is there a difference?
-
+> 14. When you compile a Solidity contract, you get "bytecode" and "deployedBytecode". They are almost identical. What's the difference? Where is the difference? And why is there a difference?  
+这题我在社区里问过哈哈，题目大概意思是，当你编译一个solidity合约时，你会得到"bytecode"和"deployedBytecode"，它们俩基本一致，区别在哪，为啥会有这个区别？  
+**参考答案**  
+bytecode是发送给地址0的msg.data，里面包含部署合约的字节码，它们将执行合约的构造函数，以及把合约代码（也就是deployedBytecode)写入state里。 
+en: Deploying is actually sending a tx to the zero addresss with the "bytecode". The EVM will excute that bytecode, whose first chunk is the constructor stuff, which writes to state, including the contracts code which is "deployedBytecode".  
 > 15. Can you use creation bytecode to bundle a bunch of txs together in a single tx, instead of deploying a contract?
 
 > 16. A contract's runtime byte code is: 0x363d3d37363df3   What does it do?
@@ -228,7 +231,28 @@ The ans is C.
 
 > 18. A Universal proxy moves its upgradeability management code from the proxy to the implementation. This makes them simpler and more gas efficient. However an upgrade could contain damaged upgradability code and “brick” the proxy. How could this be avoided?
 
-> 19. Smart contract A’s view function a() needs to call a third party contract B’s b() function, which is also supposed to be view. Can it guarantee that it will really be read only too by just calling it, or does it need to take any additional precautions?
+> 19. Smart contract A’s view function a() needs to call a third party contract B’s b() function, which is also supposed to be view. Can it guarantee that it will really be read only too by just calling it, or does it need to take any additional precautions?  
+解析：
+题目大概意思是，合约A的view函数a()调用合约B的函数b()，为了调用成功b()也得是view。如何保证调用的函数是只读的呢？还是需要额外的防护措施。这里可以采用staticcall，以及对执行结果进行判断。
+```JS
+contract A {
+    B public b;
+    
+    constructor() {
+        b = new B();
+    }
+    
+    function callB() public view returns(string memory) {
+        (bool success, bytes memory data) = address(b).staticcall(
+            msg.data
+        );
+        
+        if(!success) revert();
+        
+        return string(data);
+    }
+}
+```
 
 > 20. If a factory contract manufactures instances at the bytecode level, and their bytecode does not adhere to any known standard, how could you verify these instances in Etherscan?
 
@@ -246,9 +270,21 @@ The ans is C.
 
 > 27. You make a delegate call to a third party contract whose interface you know. It may revert with custom errors ErrorA() or ErrorB(). Given that it reverted, what code would you use to know which error it reverted with?
 
-> 28. Does adding or changing comments on a contract affect its resulting runtime bytecode?
+> 28. Does adding or changing comments on a contract affect its resulting runtime bytecode?  
+解析：会有影响，会改变metadata值。
 
-> 29. To index or not to index, that is the question. Does using indexed in events increase runtime gas costs? How about bytecode size?
+> 29. To index or not to index, that is the question. Does using indexed in events increase runtime gas costs? How about bytecode size?  
+The general formula for the event gas cost is: 
+375 + 375 * numberOfIndexedParameters + numberOfUnindexedBytes * 8. This formula can be derived from Ethereum's yellow paper 
+Let's compare the following:
+- event NewEvent(address addr)
+- event NewEvent(address indexed addr)
+----
+- 375 + 375 * 0 + 20*8 = 535
+- 375 + 375 * 1 + 0*8 = 750
+
+Therefore, indexed events increase runtime gas costs.
+the indexed logs contract is just 370 bytes, while the unindexed log contract is 516 bytes. This is because the log opcodes in the evm load the values from memory, which require first loading the local variable from the stack into memory. Meanwhile indexed logs are loaded directly from the stack, which does not have the overhead of moving the variable into memory.
 
 > 30. What’s the “data” and “to” of a transaction that creates a contract whose runtime byte code is 0x?
 
@@ -256,14 +292,57 @@ The ans is C.
 
 > 32. A contract contains an array of one million addresses, and a view function that simply returns this array. Will this function run out of gas when:
 * Called by a contract?
-* Called externally by an EOA?
-
+* Called externally by an EOA?  
+解析：不论是谁调用view函数，都会计算gas。只是如果只是查询状态，不会真的扣钱。
+```JS
+contract A{
+    uint public value;
+    constructor()payable{
+        value = 1;
+    }
+    function test() external view returns(uint){
+        return value;   //不消耗gas
+    }
+    function test2() public{
+        address _to = 0x4B20993Bc481177ec7E8f571ceCaE8A9e22C02db;
+        uint _tmp = this.test(); //消耗 gas，因为该函数有修改状态
+        (bool success,) = _to.call{value: _tmp}("");
+        require(success,"failed");
+    }
+    
+    function test3() external view returns(uint){
+        return this.test();   //不消耗gas
+    }
+}
+```
 > 33. Is it possible to implement `hasDuplicates(uint[] memory values) public pure returns (bool)`
 
 with < O(n^2) complexity?
 
-> 34. You have a public view function in a contract. Can it know whether it's been called as part of a transaction that mutates the root hash of the chain, as opposed to just a simple read call?
+> 34. You have a public view function in a contract. Can it know whether it's been called as part of a transaction that mutates the root hash of the chain, as opposed to just a simple read call?  
+解析：这题大概意思是如何防止你的用户调用你的view函数付出了gas费。  
+看老外做了个分析。 不同的平台EOA调用view函数时，tx.gasprice和tx.origin分别是多少
+![view_consume](./images/view_consume.png)  
+并且提供了个方法避免合约调用view函数。  
+![view_protect](./images/view_protect.png)
 
 > 35. You have a contract with 4 public functions. You add a 5th, and all of sudden calling function 4 costs less gas.
 
+```
+Because with four functions the contract is:
+
+is this A? 
+is this B? 
+is this C?
+is this D? 
+
+You check four conditions.
+
+However, with five functions the contract is:
+
+is this  >= D? If so, jump to LBL
+LBL:
+is this D?
+is this E?
+```
 > 36. Can you write a contract in Solidity with no abi (just a fallback) that returns “world” if the calldata is “hello”?
