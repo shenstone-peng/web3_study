@@ -191,10 +191,30 @@ ans: calldata is purely for external functions. It's similar to memory in most a
 > 9. Why do contract sizes decrease so much when you wrap the code of a modifier in an internal function?
 
 > 10. Is there a way to revert with dynamic error messages?  I.e. “Error: Price must be > 1 ETH”, where 1 is a value held in a state variable in your contract.
+ans:
+```js
+contract example{
+    function test() public{
+        uint8  value = 1;
+        string memory tmp = string(abi.encodePacked("Error:Price must be", value, " ETH"));
+        require(false, tmp);
 
+    }
+}
+```
 > 11. Can you read a private variable of another contract from your contract? If so, how?
+ans: no
 
 > 12. Bob calls contract A, which delegate calls contract B, which delegate calls contract C, which calls contract D, which delegate calls contract E, which delegate calls contract A.Who is msg.sender when the execution reaches back contract A?
+```
+when Bob call A, sender is EOA
+when A dcall B,  sender is EOA
+when B dcall C,  sender is EOA
+when C call D,   sender is C now 
+when D dcall E,  sender is C 
+when E dcall A,  sender is C
+The ans is C.
+```
 
 > 13. You use your smart account (a wallet contract you control) in L1 to deposit tokens in an L1 to L2 bridge. You eagerly wait for the tx to be relayed. It gets relayed. Ok 👍 But holy sheitz!! Your funds are lost. What happened?!
 
