@@ -1,4 +1,6 @@
 > 1. How would you call a function on a third party contract B, on behalf of the sender, through your contract A, guaranteeing no reverts?   
+
+
 **解析：**  
 题目意思就是如何通过合约A代表发送者调用合约B的函数，答案很简单咯，就是[delegatecall](https://solidity-by-example.org/delegatecall/)。
 ```javascript
@@ -20,6 +22,8 @@ contract A{
 ```
 --- 
 > 2. What’s the main difference between a transparent proxy and a universal proxy?   
+
+
 **解析：**
 题目意思是透明合约和代理合约的主要区别是啥？社区里这篇[文章](https://learnblockchain.cn/article/1933#%E4%BB%A3%E7%90%86%E5%AD%98%E5%82%A8%E5%86%B2%E7%AA%81%E5%92%8C%E9%9D%9E%E7%BB%93%E6%9E%84%E5%8C%96%E5%AD%98%E5%82%A8)很详细的介绍了这俩代理模式的。可以瞅一瞅。 
 ```js
@@ -94,7 +98,9 @@ contract BoxV1 is Box{
 > * You re not the owner of the proxy
 > * No one owns the implementation
 > * The implementation uses delegatecall to guarantee that the next implementation is not sterile  
-**解析**  
+
+
+**解析：**  
 题目大概意思是，如何毁掉一个通用代理下的实现合约？条件如下：  
 - 你不是代理合约的owner
 - 没人是implementation合约的owner
@@ -109,6 +115,8 @@ contract BoxV1 is Box{
 tx.origin是最开始调用合约的EOA账户（外部账户），如果你的合约A用了tx.origin来判断身份的话，最好就别执行了陌生的合约了，因为可能该合约会调用合约A，来转走你的钱。 如果你没看懂我在说啥的话，这里提供个[案例](https://solidity-by-example.org/hacks/phishing-with-tx-origin/)去参考下。
 --- 
 > 5. What kind of proxy would you use to update an indefinite amount of instances with a single implementation upgrade? And how would it work?  
+
+
 **解析：**  
 题目大概意思是：什么样的代理可以让你只要升级一次实现，完成多个实例代理呢？  
 使用信标代理，信标代理特征，再加一层合约，其保存着implementation，代理合约存着信标合约地址。示例如下：  
@@ -132,6 +140,8 @@ contract Beacon{
 ---
 
 > 6. Whats the deal with external vs public? When should you use external? When not? Why is it cheaper than public?  
+
+
 **解析：**
 External函数一般是外部合约或者EOA账户调用，如果是合约内部其他函数调用，需要使用方法*this.xxx()*，Public函数外部内部都可以调用。  
 External函数更便宜是因为它的参数可以直接从calldata里取出，而Public函数则需要先把他们加载到Memory里，这会消耗更多的gas。  
@@ -157,6 +167,8 @@ contract A{
 ```
 --- 
 > 7. 3rd party contract B with function b() writes to state in ways outside of your control. How would you simulate a call to b() from your contract A, observe the side effects, and then undo them entirely without reverting the main execution thread?  
+
+
 **解析：**  
 题目大概意思是：如何调用第三方合约的函数b()，并保证不会干扰你的主要执行线程。  
 使用try...catch...，下面举个例子，安全转账ERC20。  
@@ -192,6 +204,8 @@ contract A{
 ```
 --- 
 > 8. Dynamically sized types in function signatures may be preceded by the keywords “memory”, “storage”, or “calldata”. When is it optimal to use each of them?  
+
+
 **解析：**  
 题目大概意思是函数参数中的动态类型对象可以注明关键词"memory","storage","calldata"，分别什么情况下使用。
 calldata基本是为external函数服务的。它跟memory很像，只是是不可更改的，memory是可更改的。storage类型只能在internal函数中传递，并作为引用传送，这样才能写入。
@@ -200,6 +214,8 @@ ans: calldata is purely for external functions. It's similar to memory in most a
 > 9. Why do contract sizes decrease so much when you wrap the code of a modifier in an internal function?
 ---
 > 10. Is there a way to revert with dynamic error messages?  I.e. “Error: Price must be > 1 ETH”, where 1 is a value held in a state variable in your contract.
+
+
 **解析：**  
 ```js
 contract example{
@@ -213,9 +229,13 @@ contract example{
 ```
 --- 
 > 11. Can you read a private variable of another contract from your contract? If so, how?
+
+
 ans: no
 --- 
 > 12. Bob calls contract A, which delegate calls contract B, which delegate calls contract C, which calls contract D, which delegate calls contract E, which delegate calls contract A.Who is msg.sender when the execution reaches back contract A?
+
+
 **解析：**  
 ```
 when Bob call A, sender is EOA
@@ -228,8 +248,12 @@ The ans is C.
 ```
 --- 
 > 13. You use your smart account (a wallet contract you control) in L1 to deposit tokens in an L1 to L2 bridge. You eagerly wait for the tx to be relayed. It gets relayed. Ok 👍 But holy sheitz!! Your funds are lost. What happened?!
+
+
 ---
 > 14. When you compile a Solidity contract, you get "bytecode" and "deployedBytecode". They are almost identical. What's the difference? Where is the difference? And why is there a difference?  
+
+
 **解析：**  
 这题我在社区里问过哈哈，题目大概意思是，当你编译一个solidity合约时，你会得到"bytecode"和"deployedBytecode"，它们俩基本一致，区别在哪，为啥会有这个区别？  
   
@@ -237,14 +261,24 @@ bytecode是发送给地址0的msg.data，里面包含部署合约的字节码，
 en: Deploying is actually sending a tx to the zero addresss with the "bytecode". The EVM will excute that bytecode, whose first chunk is the constructor stuff, which writes to state, including the contracts code which is "deployedBytecode".  
 ---
 > 15. Can you use creation bytecode to bundle a bunch of txs together in a single tx, instead of deploying a contract?
+
+
 ---
 > 16. A contract's runtime byte code is: 0x363d3d37363df3   What does it do?
+
+
 ---
 > 17. Can you guarantee that your complex smart contract system, which continuously evolves, will have the exact same contract addresses in all evm compatible networks it is deployed into, forever?If so, how?
+
+
 ---
 > 18. A Universal proxy moves its upgradeability management code from the proxy to the implementation. This makes them simpler and more gas efficient. However an upgrade could contain damaged upgradability code and “brick” the proxy. How could this be avoided?
+
+
 ---
 > 19. Smart contract A’s view function a() needs to call a third party contract B’s b() function, which is also supposed to be view. Can it guarantee that it will really be read only too by just calling it, or does it need to take any additional precautions?  
+
+
 **解析：**
 题目大概意思是，合约A的view函数a()调用合约B的函数b()，为了调用成功b()也得是view。如何保证调用的函数是只读的呢？还是需要额外的防护措施。这里可以采用staticcall，以及对执行结果进行判断。
 ```JS
@@ -268,25 +302,44 @@ contract A {
 ```
 ---
 > 20. If a factory contract manufactures instances at the bytecode level, and their bytecode does not adhere to any known standard, how could you verify these instances in Etherscan?
+
+
 ---
 > 21. A random number oracle provides a number between 0 and 2^256. How would you manipulate this number in Solidity to represent a random number between zero and 500?
+
+
 ---
 > 22. You launch an NFT collection. As an artist / dev, you know which tokenId’s will be rare. Every time someone mints, you pick one at random and upload it to IPFS. How do you guarantee transparency / fairness in this process?
+
 ---
 > 23. Solidity has a non-frequently used keyword "anonymous" that can be used in events. When would you use it and what for?
+
+
 ---
 > 24. You make a transaction. It reverts. What, if any, state changes occurs?
+
+
 ---
 > 25. How would you demonstrate that two different sets of transactions alter the state of a chain in the exact same way, without knowing the contracts they interact with?
+
+
 ---
 > 26. if another function is called inside an unchecked block, does that turn off overflow checks inside other functions scope?
+
+
 ---
 > 27. You make a delegate call to a third party contract whose interface you know. It may revert with custom errors ErrorA() or ErrorB(). Given that it reverted, what code would you use to know which error it reverted with?
+
+
 ---
 > 28. Does adding or changing comments on a contract affect its resulting runtime bytecode?  
+
+
 解析：会有影响，会改变metadata值。
 ---
 > 29. To index or not to index, that is the question. Does using indexed in events increase runtime gas costs? How about bytecode size?  
+
+
 **解析：**  
 The general formula for the event gas cost is: 
 375 + 375 * numberOfIndexedParameters + numberOfUnindexedBytes * 8. This formula can be derived from Ethereum's yellow paper 
@@ -301,12 +354,18 @@ Therefore, indexed events increase runtime gas costs.
 the indexed logs contract is just 370 bytes, while the unindexed log contract is 516 bytes. This is because the log opcodes in the evm load the values from memory, which require first loading the local variable from the stack into memory. Meanwhile indexed logs are loaded directly from the stack, which does not have the overhead of moving the variable into memory.
 ---
 > 30. What’s the “data” and “to” of a transaction that creates a contract whose runtime byte code is 0x?
+
+
 ---
 > 31. Are Solidity's new custom errors part of a contract's interface?
+
+
 ---
 > 32. A contract contains an array of one million addresses, and a view function that simply returns this array. Will this function run out of gas when:
 * Called by a contract?
 * Called externally by an EOA?  
+
+
 **解析：**  
 不论是谁调用view函数，都会计算gas。只是如果只是查询状态，不会真的扣钱。
 ```JS
@@ -335,7 +394,9 @@ contract A{
 
 with < O(n^2) complexity?
 ---
-> 34. You have a public view function in a contract. Can it know whether it's been called as part of a transaction that mutates the root hash of the chain, as opposed to just a simple read call?  
+> 34. You have a public view function in a contract. Can it know whether it's been called as part of a transaction that mutates the root hash of the chain, as opposed to just a simple read call? 
+
+
 **解析：**  
 这题大概意思是如何防止你的用户调用你的view函数付出了gas费。  
 看老外做了个分析。 不同的平台EOA调用view函数时，tx.gasprice和tx.origin分别是多少
@@ -344,6 +405,8 @@ with < O(n^2) complexity?
 ![view_protect](./images/view_protect.png)
 ---
 > 35. You have a contract with 4 public functions. You add a 5th, and all of sudden calling function 4 costs less gas.
+
+
 **解析：**  
 ```
 Because with four functions the contract is:
@@ -363,3 +426,5 @@ is this D?
 is this E?
 ```
 > 36. Can you write a contract in Solidity with no abi (just a fallback) that returns “world” if the calldata is “hello”?
+
+
