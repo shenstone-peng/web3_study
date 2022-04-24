@@ -88,3 +88,4 @@ In Eth2,
 1. [Eth1+eth2 client relationship](https://ethresear.ch/t/eth1-eth2-client-relationship/7248)
 2. [成都链安：以太坊2.0技术浅析](https://learnblockchain.cn/article/1352)
 3. [图解以太坊发展路线](https://learnblockchain.cn/article/2463)
+4. [以太坊执行层 (Eth1) 和信标链 (Eth2)合并后会发生什么](https://learnblockchain.cn/article/3689)
