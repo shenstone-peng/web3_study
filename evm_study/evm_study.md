@@ -38,5 +38,52 @@ Below is the section of the 'Ethereum Architecture' diagram that represents thar
 The Merkle Patricia Trie is a non trival data structure so we won't deep dive into it in this article. Instad we can instead keep the key value mapping model of address to Ethereum account.  
 If you are interestede in the Merkle Patrcia Trie I recooment checking out this excellent introductory article. 
 Next let's inspect the Ethereum account value that the Ethereum addresses are mapping to.  
+# Ethereum Account
+The Ethereum account is the consensus representation for an Ethereum address. It is made up of 4 items.
+- Nonce - Number of transactions made by the account
+- Balance - Balance of the account in Wei
+- Code Hash - Hash of the bytecode stored in the contract/account
+- Storage Root - Keccak Hash of the root node of storage trie (post-execution)
+
+We see these in this snippet from the original Ethereum architecture image.
+Again we can jump into the Geth codebase and find the corresponding file state account.go and the struct that defines an "Ethereum account" referred to as a StateAccount.  
+Again we can see the values stated within the codebase match our conceptual diagram.  
+Next we neede to zoom in on the "Storage Root" field within the Ethereum account.
+
+# Storage Root
+The storage root is much like the state root in that underneath it is another Merkle Patricia trie.
+
+The difference is that this time the keys are the storage slots and the values are the data in each slot.  
+ 
+*Again in actuality there is RLP encoding of the values & hashing of the the keys that goes on as part of this process.*
+
+Below is the section of the "Ethereum Architecture" diagram that represents that Merkel Patricia Trie for the "Storage Root"
+
+As before the "Storage Root" is a merkle root hash that will be impacted if any of the underlying data changes.
+
+Any change in contract storage will impact the "Storage Root" which in turn will impact the "State Root" which in turn will impact the "Block Header"
+
+At this stage of the article we've achieved our goal of taking you from an ethereum block down to an individual contract's storage.
+
+The next part of the article is a deep dive into the Geth codebase. We will look briefly at how the contract storage is initialised and what happens when the SSTORE & SLOAD opcodes are called.
+
+This will help you make the mental connections from what we've discussed so far back to your solidity code and the underlying storage opcodes.
+A *warning*, the next section is heavy on the *code* side and assumes the ability to read code.
+
+# StateDB -> stateObject -> StateAccount
+To get us started we need a brand new contract. A brand new contract means a brand new StateAccount.
+Before we start there are 3 structures we're going to be interfacing with:
+- StateAccount
+ - StateAccount is the Ethereum consensus representation of "Ethereum accounts"
+- stateObject
+ - stateObject represents an "Ethereum account" that is being modified.
+- StateDB
+ - StateDB structs within the Ethereum protocol are used to store anything within the merkle trie. It's the general query interface to retrieve:Contracts & Ethereum Accounts
+ Let's look at how these 3 items are interconnected and how they relate back to what we have been discussing.
+ 1.StateDB struct, we can see it has a stateObjects field which is a mapping of address to stateObjects(Remember the "State Root" Merkle Patricia Trie was a mapping of Ethereum addresses to Ethereum accounts and that a stateObject is an Ethereum account that is being modified)
+ 2.stateObject struct, we can see it has a data field which is of type StateAccount(Remember that earlier in the article we mapped an Ethereum account to StateAccount in Geth)
+ 3.StateAccount struct, we have seen this struct already, it represents an Ethereum account and the Root field represents the "Storage Root" we discussed earlier.
+ At this stage some pieces of the puzzleare starting to fit together. Now we have the context to see how a new "Ethereum account" is initialised.
+ 
 
 
