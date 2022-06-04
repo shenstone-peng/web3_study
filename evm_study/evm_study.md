@@ -37,7 +37,8 @@
 "State Root"的作用类似于merkle root，因为它是一个依赖于它中间所有数据的哈希值。如果任何数据发生变化，根哈希值也会发生变化。 
 在 "State Root"下面的数据结构是一个Merkle Patric Trie(MPT)，它为网络上的每个以太坊账户存储一个键值对，其中键是一个以太坊地址，值是以太坊账户对象。 
 实际上，键是以太坊地址的哈希值，值是RLP编码的以太坊账户，但是我们现在可以忽略这一点。
-下面是 "以太坊架构 "图的一部分，表示State Root下的MPT。 
+下面是 "以太坊架构 "图的一部分，表示State Root下的MPT。         
+
 ![mpt](./images/04_mpt_underneath_stateroot.png)  
 
 Merkle Patricia Trie是一个非三态的数据结构，所以我们不会在这篇文章中深入研究它。我们可以继续抽象化地址到以太坊账户的键值映射模型。
