@@ -1,43 +1,50 @@
 # Ethereum Architecture(以太坊架构)
-We'll start with the image below. Do not be intimated, by the end of this article you'll understand exactly how this all fits togther. This represents the Ethereum architecture and the data contained within the Ethereum chian.
-我们将从下面的图片开始说起。不用详细了解该知识，你将通过这篇文章理解它们是如何联系的。这张图代表了以太坊架构和以太坊链包含的数据。
-[!image_0_Ethereum_architecture]()  
-Rather than look at the diagram as a whole we'll analyse it piece by piece. For now, let's focus on the 'Block N Header' and the fileds it contains.
-我们将一点一点分析图片里的信息。现在，我们先聚焦在“区块N的区块头”以及它包含的内容。
+我们将从下面的图片开始。不要被吓倒，在本文结束时，你会明白这一切到底是如何结合在一起的。这代表了以太坊的架构和以太坊链中包含的数据。 
+[!image_0_Ethereum_architecture](./images/01_eth_arch.png)  
+与其将图表作为一个整体来看，我们不如逐块分析。现在，让我们把重点放在 "区块头N"和它包含的字段上。 
+
+---
+
 # Block Header(区块头)
-The Block Header contains the key information about an Ethereum block. Below is the 'Block N Header' snippet along with its data fields.Take a look at this block 14698834 on etherscan and see if you can see some of the fields in the diagram.
-区块头包含关于以太坊区块的关键信息。下面是关于“区块N的区块头”的部分信息。在etherscan上你能对照着下图所示的区块14698834的相关信息、
-The block header contains the following fields:
-- Prev Hash - Keccak hash of the parent block
-- Nonce - Used in proof of work computation
-- Timestamp - Scale value for uncled blocks
-- Benficiary - Benficiary address, mining fee recipient
-- Logs Bloom - Bloom filter of two fields, log address & log topic in the receipts
-- Difficult - Scalar value of the difficulty of the previous block
-- Extra Data - 32 byte data relevant to this block
-- Block Num - Scalar value of the number of ancestor blocks
-- Gas Limit - Scalar value of current limit of gas usage per block
-- Gas Used - Scalar value of the total gas spent on transactions in this block
-- Mix Hash - 256-bit vaalue used with nonce to prove proof of work computation
-- State Root - Keccak Hash of the root node of state trie(post-execution)
-- Transaction Root - Keccak Hash of the root node of transaction trie
-- Receipt Root - Keccak Hash of the root node of receipt trie
+区块头包含了一个以太坊区块的关键信息。下面是 "区块头N "片段，以及它的数据字段。看一下etherscan上的这个区块[14698834](https://etherscan.io/block/14698834)，看看你是否能看到图中的一些字段。  
+[!blockN_header](./images/02_blockN_header.png)  
 
-Let's see how these fields map to what is in the Geth client codebase. We'll look at the 'Header' struct definede in block.go which represents a block header.
+该区块头包含以下字段。
+- Prev Hash - 父区块的Keccak哈希值
+- Nonce - 用于工作证明的计算
+- Timestamp - 时间戳
+- Uncles Hash - 叔块的Keccak哈希值
+- Benficiary - 受益人地址，矿工地址
+- Logs Bloom - 事件地址和事件topic的布隆滤波器
+- Difficult - 前一个区块的难度
+- Extra Data - 与该区块相关的32字节数据
+- Block Num - 祖先块数
+- Gas Limit -当前每个区块的气体使用限制值
+- Gas Used - 该区块中用于交易的gas消耗值
+- Mix Hash - 与nonce一起用来证明工作证明计算的256位值
+- State Root - 状态树的根哈希值
+- Transaction Root - 交易树的根哈希值
+- Receipt Root - 收据树的根哈希值
 
-We can see the values stated within the codebase match our conceptual diagram. Our goal is to get from the block header down to the storage of an individual contract.
+让我们看看这些字段如何与 Geth 客户端代码库中的内容相对应。我们来看看[block.go](https://github.com/ethereum/go-ethereum/blob/d4d288e3f1cebb183fce9137829a76ddf7c6d12a/core/types/block.go#L70)中定义的 "Header "结构，它表示一个块的头。  
+[!go-ethereum_blockHeaderStruct](./images/03_goblockhead.png)  
+我们可以看到，代码库中所述的值与我们的概念图相匹配。我们的目标是要如何从区块头找到我们合约的storage存储的位置。
 
-To do so we need to focus on the "State Root" field of the block header highlightede in red.
+要做到这一点，我们需要关注块头的 "State Root"字段，该字段以红色标示。
+
 
 # State Root
-The 'State Root' acts like a merkle root in that it is a hash that is dependent on all the pieces of data that lie underneath it. If any piece of data changes the root will also change.
+"State Root"的作用类似于merkle root，因为它是一个依赖于它中间所有数据的哈希值。如果任何数据发生变化，根哈希值也会发生变化。 
+在 "State Root"下面的数据结构是一个Merkle Patric Trie(MPT)，它为网络上的每个以太坊账户存储一个键值对，其中键是一个以太坊地址，值是以太坊账户对象。 
+实际上，键是以太坊地址的哈希值，值是RLP编码的以太坊账户，但是我们现在可以忽略这一点。
+下面是 "以太坊架构 "图的一部分，表示State Root下的MPT。 
+[!mpt](./images/04_mpt_underneath_stateroot.png)  
 
-The data structure underneath the 'State Root' is a Merkle Patricia Trie which stores a key-value pair for every Ethereum account on the network, where the key is an ethereum address and the value is the Ethereum account object.  
-In actuality the key is the hash of the Ethereum address and the value is the RLP encoded Ethereum account however we can ignore this for now.  
-Below is the section of the 'Ethereum Architecture' diagram that represents thar Merkel Patricia Trie for the 'State Root'  
-The Merkle Patricia Trie is a non trival data structure so we won't deep dive into it in this article. Instad we can instead keep the key value mapping model of address to Ethereum account.  
-If you are interestede in the Merkle Patrcia Trie I recooment checking out this excellent introductory article. 
-Next let's inspect the Ethereum account value that the Ethereum addresses are mapping to.  
+Merkle Patricia Trie是一个非三态的数据结构，所以我们不会在这篇文章中深入研究它。我们可以继续抽象化地址到以太坊账户的键值映射模型。
+
+如果你对Merkle Patricia Trie感兴趣，我建议你看看这篇优秀的介绍性[文章](https://medium.com/shyft-network-media/understanding-trie-databases-in-ethereum-9f03d2c3325d)。
+
+接下来让我们细究一下以太坊地址所映射到的以太坊账户值。 
 # Ethereum Account
 The Ethereum account is the consensus representation for an Ethereum address. It is made up of 4 items.
 - Nonce - Number of transactions made by the account
@@ -84,6 +91,6 @@ Before we start there are 3 structures we're going to be interfacing with:
  2.stateObject struct, we can see it has a data field which is of type StateAccount(Remember that earlier in the article we mapped an Ethereum account to StateAccount in Geth)
  3.StateAccount struct, we have seen this struct already, it represents an Ethereum account and the Root field represents the "Storage Root" we discussed earlier.
  At this stage some pieces of the puzzleare starting to fit together. Now we have the context to see how a new "Ethereum account" is initialised.
- 
+
 
 
