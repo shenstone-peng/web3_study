@@ -1,13 +1,13 @@
 # Ethereum Architecture(以太坊架构)
 我们将从下面的图片开始。不要被吓倒，在本文结束时，你会明白这一切到底是如何结合在一起的。这代表了以太坊的架构和以太坊链中包含的数据。 
-[!image_0_Ethereum_architecture](./images/01_eth_arch.png)  
+![image_0_Ethereum_architecture](./images/01_eth_arch.png)  
 与其将图表作为一个整体来看，我们不如逐块分析。现在，让我们把重点放在 "区块头N"和它包含的字段上。 
 
 ---
 
 # Block Header(区块头)
 区块头包含了一个以太坊区块的关键信息。下面是 "区块头N "片段，以及它的数据字段。看一下etherscan上的这个区块[14698834](https://etherscan.io/block/14698834)，看看你是否能看到图中的一些字段。  
-[!blockN_header](./images/02_blockN_header.png)  
+![blockN_header](./images/02_blockN_header.png)  
 
 该区块头包含以下字段。
 - Prev Hash - 父区块的Keccak哈希值
@@ -27,7 +27,7 @@
 - Receipt Root - 收据树的根哈希值
 
 让我们看看这些字段如何与 Geth 客户端代码库中的内容相对应。我们来看看[block.go](https://github.com/ethereum/go-ethereum/blob/d4d288e3f1cebb183fce9137829a76ddf7c6d12a/core/types/block.go#L70)中定义的 "Header "结构，它表示一个块的头。  
-[!go-ethereum_blockHeaderStruct](./images/03_goblockhead.png)  
+![go-ethereum_blockHeaderStruct](./images/03_goblockhead.png)  
 我们可以看到，代码库中所述的值与我们的概念图相匹配。我们的目标是要如何从区块头找到我们合约的storage存储的位置。
 
 要做到这一点，我们需要关注块头的 "State Root"字段，该字段以红色标示。
@@ -38,7 +38,7 @@
 在 "State Root"下面的数据结构是一个Merkle Patric Trie(MPT)，它为网络上的每个以太坊账户存储一个键值对，其中键是一个以太坊地址，值是以太坊账户对象。 
 实际上，键是以太坊地址的哈希值，值是RLP编码的以太坊账户，但是我们现在可以忽略这一点。
 下面是 "以太坊架构 "图的一部分，表示State Root下的MPT。 
-[!mpt](./images/04_mpt_underneath_stateroot.png)  
+![mpt](./images/04_mpt_underneath_stateroot.png)  
 
 Merkle Patricia Trie是一个非三态的数据结构，所以我们不会在这篇文章中深入研究它。我们可以继续抽象化地址到以太坊账户的键值映射模型。
 
