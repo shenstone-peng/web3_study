@@ -47,50 +47,70 @@ Merkle Patricia Trie是一个非三态的数据结构，所以我们不会在这
 接下来让我们细究一下以太坊地址所映射到的以太坊账户值。 
 # Ethereum Account
 The Ethereum account is the consensus representation for an Ethereum address. It is made up of 4 items.
-- Nonce - Number of transactions made by the account
-- Balance - Balance of the account in Wei
-- Code Hash - Hash of the bytecode stored in the contract/account
-- Storage Root - Keccak Hash of the root node of storage trie (post-execution)
+以太坊账户是以太坊地址的共识代表，它由4部分构成
 
-We see these in this snippet from the original Ethereum architecture image.
-Again we can jump into the Geth codebase and find the corresponding file state account.go and the struct that defines an "Ethereum account" referred to as a StateAccount.  
-Again we can see the values stated within the codebase match our conceptual diagram.  
-Next we neede to zoom in on the "Storage Root" field within the Ethereum account.
+
+- Nonce - 该账号的交易数量
+- Banlance - 账户余额（以wei为单位）
+- Code Hash - 合约字节码的hash值
+- Storage Root - storage trie的根节点的hash值
+从以太坊架构图的部分片段里可以看到这些内容  
+![snippet_from_eth](./images/snippet_from_eth.png)  
+
+我们再看Geth的代码，找到相关的代码'[state_account.go](https://github.com/ethereum/go-ethereum/blob/b1e72f7ea998ad662166bcf23705ca59cf81e925/core/types/state_account.go#L27)'，之前提及的以太坊账户结构被定义为‘StateAccount’。  
+![05_stateaccount](./images/05_stateaccount.png)  
+我们可以看到代码里的结构成员一一对应我们的概念图。  
+接下来，我们需要深入学习以太坊账户里的"Storage Root"字段。  
+
 
 # Storage Root
-The storage root is much like the state root in that underneath it is another Merkle Patricia trie.
-
-The difference is that this time the keys are the storage slots and the values are the data in each slot.  
- 
-*Again in actuality there is RLP encoding of the values & hashing of the the keys that goes on as part of this process.*
-
+storage root跟state root一样，在它下面也是一棵Merkle Patricia trie.  
+区别在于这次key值是存储插槽(storage slots)，而value值是插槽里的数据。  
+*再次注意这里实际上会对value进行RLP编码，以及对key取hash*  
 Below is the section of the "Ethereum Architecture" diagram that represents that Merkel Patricia Trie for the "Storage Root"
+下图是以太坊架构图里代表'Storage Root’的MPT的部分。  
+![06_mpt_storage](./images/06_mpt_storage.png)  
 
-As before the "Storage Root" is a merkle root hash that will be impacted if any of the underlying data changes.
+像之前一样，'Storage Root'是默克尔根哈希，它会因为任一底层数据变化而变化。  
+合约storage的任何变化都会影响到 "Storage Root"，进而影响到 "State Root"，进而影响到 "Block Header"。
+文章到这里，我们已经成功把你从一个以太坊区块深入到一个合约的存储空间。 
+文章的下一部分是对Geth代码库的深入探讨。我们将简要地看一下合约存储是如何初始化的，以及当调用SSTORE & SLOAD操作码时会发生什么。  
+这将帮助你从我们到目前为止所讨论的内容，回到你的 solidity 代码和底层存储操作码，建立起联系。
+*ummm，下面的内容涉及代码比较多，假定读者有基础的代码阅读理解能力*   
 
-Any change in contract storage will impact the "Storage Root" which in turn will impact the "State Root" which in turn will impact the "Block Header"
 
-At this stage of the article we've achieved our goal of taking you from an ethereum block down to an individual contract's storage.
+---
 
-The next part of the article is a deep dive into the Geth codebase. We will look briefly at how the contract storage is initialised and what happens when the SSTORE & SLOAD opcodes are called.
-
-This will help you make the mental connections from what we've discussed so far back to your solidity code and the underlying storage opcodes.
-A *warning*, the next section is heavy on the *code* side and assumes the ability to read code.
-
+ 
 # StateDB -> stateObject -> StateAccount
-To get us started we need a brand new contract. A brand new contract means a brand new StateAccount.
-Before we start there are 3 structures we're going to be interfacing with:
-- StateAccount
- - StateAccount is the Ethereum consensus representation of "Ethereum accounts"
-- stateObject
- - stateObject represents an "Ethereum account" that is being modified.
-- StateDB
- - StateDB structs within the Ethereum protocol are used to store anything within the merkle trie. It's the general query interface to retrieve:Contracts & Ethereum Accounts
- Let's look at how these 3 items are interconnected and how they relate back to what we have been discussing.
- 1.StateDB struct, we can see it has a stateObjects field which is a mapping of address to stateObjects(Remember the "State Root" Merkle Patricia Trie was a mapping of Ethereum addresses to Ethereum accounts and that a stateObject is an Ethereum account that is being modified)
- 2.stateObject struct, we can see it has a data field which is of type StateAccount(Remember that earlier in the article we mapped an Ethereum account to StateAccount in Geth)
- 3.StateAccount struct, we have seen this struct already, it represents an Ethereum account and the Root field represents the "Storage Root" we discussed earlier.
- At this stage some pieces of the puzzleare starting to fit together. Now we have the context to see how a new "Ethereum account" is initialised.
+为了开始之后的内容，我们需要一个全新的合约。一个全新的合约意为着一个全新的状态账户(StateAccount)。  
+我们先介绍三个结构：
+- StateAccount：状态账户是以太坊账户的”共识代表“（不知道咋翻译）
+- stateObject：stateObject代表一个正在被修改的 "Ethereum账户"。
+- StateDB：以太坊协议内的StateDB结构是用来存储Merkle trie内的任何东西。它是检索合约和以太坊账户的总查询接口。  
+
+让我们看看这3个概念是如何相互关联的，以及它们与我们一直在讨论的内容有何关联。
+![07_stateDB](./images/07_stateDB.png)  
+1. StateDB结构，我们可以看到它有一个stateObjects字段，是地址到stateObjects的映射表（记得 "State Root"Merkle Patricia Trie是以太坊地址到以太坊账户的映射，stateObject是一个正在被修改的以太坊账户。）
+2. stateObject结构，我们可以看到它有一个数据字段，属于StateAccount类型（记得在文章的前面，我们将Ethereum账户映射到Geth中的StateAccount）。
+3. StateAccount结构，我们已经学习了这个结构，它代表一个以太坊账户，Root字段代表我们之前讨论的 "Storage Root"。
+在这个阶段，一些拼图的碎片开始拼凑起来。现在我们有了背景，可以看到一个新的 "以太坊账户"（StateAccount）是如何初始化的。  
+
+--- 
+# 初始化一个新的以太坊账户
+为了创建一个新的StateAccount，我们需要与[statedb.go](https://github.com/ethereum/go-ethereum/blob/d4d288e3f1cebb183fce9137829a76ddf7c6d12a/core/state/statedb.go)代码和StateDB结构交互。  
+StateDB有一个createObject函数，可以创建一个新的stateObject，并将一个空的StateAccount传给它。这实际上是创建一个空的"以太坊账户"。  
+下图详细说明了代码流程。 
+![08_createaccount](./images/08_createAccount.png)  
+1. StateDB有一个createObject函数，它接收一个Ethereum地址并返回一个stateObject（记住一个stateObject代表一个正在修改的Ethereum账户。）
+
+2. createObject函数调用newObject函数，输入stateDB、地址和一个空的StateAccount（记住一个StateAccount=以太坊账户），返回一个stateObject。
+
+3. 在newObject函数的返回语句中，我们可以看到有许多与stateObject相关的字段，地址、数据、dirtyStorage等。
+
+4. stateObject的data字段映射到函数中的空StateAccount输入--注意在第103-111行StateAccount中的nil值被赋值。
+
+5. 创建的stateObject包含初始化的StateAccount作为数据字段被返回。
 
 
 
