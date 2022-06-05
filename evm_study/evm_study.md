@@ -120,3 +120,26 @@ StateDB有一个createObject函数，可以创建一个新的stateObject，并�
 它从堆栈中弹出两个值，首先是32字节的key，其次是32字节的value，并将该值存储在由key定义的指定存储槽中。
 下面是SSTORE操作码的Geth代码流程，让我们看看它的作用。
 ![09](./images/09_opSStore.png)  
+1. 我们从定义了所有EVM操作码的instruments.go文件开始。在这个文件中，我们找到了 "opSstore "函数。
+
+2. 传入该函数的范围变量包含合同上下文，如堆栈、内存等。我们从堆栈中弹出2个值，并标记为loc（位置的缩写）和val（值的缩写）。
+
+3. 然后，从堆栈中弹出的2个值以及合约地址一起被用作StateDB对象的SetState函数的输入。SetState函数先用合约地址来检查该合约是否存在一个stateObject，如果不存在，它将创建一个。然后，它在该stateObject上调用SetState，传入StateDB db、相应的key和value值。
+
+4. stateObject SetState函数对'fake storage'做了一些空值检查，然后检查value是否有变化，如果有变化，则通过journal结构记录变化。
+
+5. 如果你看一下关于journal结构的代码注释，你会发现journal是用来跟踪状态修改的，以便在出现执行异常或请求撤销的情况下可以恢复这些修改。
+
+6. 在journal结构被更新后，storageObject的setState函数被调用，入参为key和value。这将更新storageObjects的dirtyStorage。
+好了，我们已经用key和value更新了stateObject的dirtyStorage。这实际上意味着什么，它与我们到目前为止所学的一切有什么关系?  
+
+让我们从代码中的dirtyStorage定义继续学习。
+![10](./images/10_dirtyStorage.png)  
+1. dirtyStorage被定义在stateObject结构中，它属于Storage类型，被描述为 "在当前交易执行中被修改的存储条目"。  
+2. 与dirtyStorage相对应的存储类型是common.Hash到common.Hash的简单映射。  
+3. Hash类型只是一个长度为HashLength的数组。  
+4. HashLength是一个常数，定义为32  
+这对你来说应该很熟悉，一个32字节的key映射到一个32字节的value。这正是我们在EVM深度探讨的第三部分中从概念上看待合约storage存储空间的方式。 
+你可能已经注意到stateObject中的pendingStorage和originStorage就在dirtyStorage字段的上方。它们都是相关的，在最终确定过程中，dirtyStorage被复制到pendingStorage，而pendingStorage在 trie被更新时又被复制到originStorage。 
+在 trie 被更新后，StateAccount 的 "存储根 "也将在 StateDB 的 "提交 "中被更新。这将把新的状态写入底层的内存 trie 数据库中。  
+现在到了拼图的最后一块，SLOAD。
