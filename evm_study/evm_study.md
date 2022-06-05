@@ -111,7 +111,12 @@ StateDB有一个createObject函数，可以创建一个新的stateObject，并�
 
 4. stateObject的data字段映射到函数中的空StateAccount输入--注意在第103-111行StateAccount中的nil值被赋值。
 
-5. 创建的stateObject包含初始化的StateAccount作为数据字段被返回。
+5. 创建的stateObject包含初始化的StateAccount作为数据字段被返回。  
 
-
-
+好了，我们有一个空的stateAccount，接下来我们要做什么？  
+我们想存储一些数据，为此我们需要使用SSTORE操作码。  
+# SSTORE
+在我们深入了解Geth中的SSTORE实现之前，让我们快速回忆SSTORE的作用。  
+它从堆栈中弹出两个值，首先是32字节的key，其次是32字节的value，并将该值存储在由key定义的指定存储槽中。
+下面是SSTORE操作码的Geth代码流程，让我们看看它的作用。
+![09](./images/09_opSStore.png)  
