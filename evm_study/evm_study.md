@@ -143,3 +143,32 @@ StateDB有一个createObject函数，可以创建一个新的stateObject，并�
 你可能已经注意到stateObject中的pendingStorage和originStorage就在dirtyStorage字段的上方。它们都是相关的，在最终确定过程中，dirtyStorage被复制到pendingStorage，而pendingStorage在 trie被更新时又被复制到originStorage。 
 在 trie 被更新后，StateAccount 的 "存储根 "也将在 StateDB 的 "提交 "中被更新。这将把新的状态写入底层的内存 trie 数据库中。  
 现在到了拼图的最后一块，SLOAD。
+
+# SLOAD
+让我们再次快速回忆，SLOAD操作码做什么。
+它从堆栈中弹出1个值，32字节的key，它代表存储槽，并返回存储在那里的32字节的value。 
+下面是SLOAD操作码的Geth代码流程，让我们看一下它的作用  
+![11](./images/11_sload.png)  
+1. 我们再次从 instructions.go 文件开始，在那里我们可以找到 "opSload "函数。我们使用peek从堆栈的顶部抓取SLOAD的位置（存储槽）。
+
+2. 我们调用StateDB上的GetState函数，输入合约地址和slot位置。GetState函数返回与该合约地址相关的stateObject。如果返回的stateObject不是空值，则调用该stateObject上的GetState函数。
+
+3. 在stateObject上的GetState函数对fakeStorage进行了检查，然后对dirtyStorage进行检查。
+4. 如果dirtyStorage存在，返回dirtyStorage映射表中位置key相对应的值。(dirtyStorage代表了合约的最新状态，这就是为什么我们试图首先返回它)
+
+5. 否则就调用GetCommitedState函数，尝试在storage trie中查找该值。同样需要先检查fakeStorage。
+
+6. 如果pendingStorage存在，返回pendingStorage映射表中位置key相对应的值。
+
+7. 如果上述方法都没有返回，就去找originStorage，从那里检索并返回值。
+你会注意到，该函数试图先返回dirtyStorage，然后是pendingStorage，最后是originStorage。这是有道理的，在执行过程中，dirtyStorage是最新的存储映射，其次是pending，然后是originStorage。
+
+一个交易可以多次操作一个存储槽，所以我们必须确保我们有最新的值。
+
+让我们想象一下，在同一交易中，在同一存储槽的SLOAD之前，发生了一个SSTORE。在这种情况下，dirtyStorage将在SSTORE中被更新，在SLOAD中被返回。
+
+到这里，你应该对SSTORE和SLOAD是如何在Geth客户端层面实现的有了了解。它们如何与状态和存储对象互动，以及更新存储槽与更广泛的以太坊 "世界状态 "的关系。
+
+这很紧张，但你做到了。我猜这篇文章给你留下了比你开始之前更多的问题，但这也是加密货币的乐趣之一。
+
+继续磨练吧，伙计。
