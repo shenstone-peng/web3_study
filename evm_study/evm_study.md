@@ -1,5 +1,6 @@
 # Ethereum Architecture(以太坊架构)
 我们将从下面的图片开始。不要被吓倒，在本文结束时，你会明白这一切到底是如何结合在一起的。这代表了以太坊的架构和以太坊链中包含的数据。 
+  
 ![image_0_Ethereum_architecture](./images/01_eth_arch.png)  
 与其将图表作为一个整体来看，我们不如逐块分析。现在，让我们把重点放在 "区块头N"和它包含的字段上。 
 
@@ -7,6 +8,7 @@
 
 # Block Header(区块头)
 区块头包含了一个以太坊区块的关键信息。下面是 "区块头N "片段，以及它的数据字段。看一下etherscan上的这个区块[14698834](https://etherscan.io/block/14698834)，看看你是否能找到图中的这些成员。  
+  
 ![blockN_header](./images/02_blockN_header.png)  
 
 该区块头包含以下成员。
@@ -27,6 +29,7 @@
 - Receipt Root - 收据树的根哈希值
 
 让我们看看这些成员如何与 Geth 客户端代码库中的内容相对应。我们先看[block.go](https://github.com/ethereum/go-ethereum/blob/d4d288e3f1cebb183fce9137829a76ddf7c6d12a/core/types/block.go#L70)中定义的 "Header "结构，它表示一个块的头。  
+  
 ![go-ethereum_blockHeaderStruct](./images/03_goblockhead.png)  
 我们可以看到，代码库中所述的值与我们的概念图相匹配。我们的目标是要如何从区块头找到我们合约的storage存储的位置。 
 
@@ -41,7 +44,7 @@
 实际上，key是以太坊地址的哈希值，value是RLP编码的以太坊账户，但是我们现在可以忽略这一点。  
 
 下面是 "以太坊架构 "图的一部分，表示State Root下的MPT。         
-
+  
 ![mpt](./images/04_mpt_underneath_stateroot.png)  
 
 Merkle Patricia Trie是一个非三态的数据结构，所以我们不会在这篇文章中深入研究它。我们可以继续抽象化地址到以太坊账户的键值映射模型。
@@ -59,6 +62,7 @@ Merkle Patricia Trie是一个非三态的数据结构，所以我们不会在这
 - Storage Root - storage trie的根节点的hash值   
 
 从以太坊架构图的部分片段里可以看到这些内容  
+  
 ![snippet_from_eth](./images/snippet_from_eth.png)  
 
 我们再看Geth的代码，找到相关的代码'[state_account.go](https://github.com/ethereum/go-ethereum/blob/b1e72f7ea998ad662166bcf23705ca59cf81e925/core/types/state_account.go#L27)'，之前提及的以太坊账户结构被定义为‘StateAccount’。  
@@ -75,7 +79,8 @@ storage root跟state root一样，在它下面也是一棵Merkle Patricia trie�
   
 *再次注意这里实际上会对value进行RLP编码，以及对key取hash*  
   
-下图是以太坊架构图里代表'Storage Root’的MPT的部分。  
+下图是以太坊架构图里代表'Storage Root’的MPT的部分。 
+   
 ![06_mpt_storage](./images/06_mpt_storage.png)  
 
 像之前一样，'Storage Root'是默克尔根哈希，它会因为任一底层数据变化而变化。  
@@ -113,8 +118,11 @@ storage root跟state root一样，在它下面也是一棵Merkle Patricia trie�
 --- 
 # 初始化一个新的以太坊账户
 为了创建一个新的StateAccount，我们需要与[statedb.go](https://github.com/ethereum/go-ethereum/blob/d4d288e3f1cebb183fce9137829a76ddf7c6d12a/core/state/statedb.go)代码和StateDB结构交互。  
+   
 StateDB有一个createObject函数，可以创建一个新的stateObject，并将一个空的StateAccount传给它。这实际上是创建一个空的"以太坊账户"。  
+  
 下图详细说明了代码流程。 
+  
 ![08_createaccount](./images/08_createAccount.png)  
 1. StateDB有一个createObject函数，它接收一个Ethereum地址并返回一个stateObject（记住一个stateObject代表一个正在修改的Ethereum账户。）
 
@@ -127,12 +135,16 @@ StateDB有一个createObject函数，可以创建一个新的stateObject，并�
 5. 创建的stateObject包含初始化的StateAccount作为数据字段被返回。  
 
 好了，我们有一个空的stateAccount，接下来我们要做什么？  
+   
 我们想存储一些数据，为此我们需要使用SSTORE操作码。  
 # SSTORE
-在我们深入了解Geth中的SSTORE实现之前，让我们快速回忆SSTORE的作用。  
+在我们深入了解Geth中的SSTORE实现之前，让我们快速回忆SSTORE的作用。   
+   
 它从堆栈中弹出两个值，首先是32字节的key，其次是32字节的value，并将该值存储在由key定义的指定存储槽中。
-下面是SSTORE操作码的Geth代码流程，让我们看看它的作用。
-![09](./images/09_opSStore.png)  
+下面是SSTORE操作码的Geth代码流程，让我们看看它的作用。  
+
+![09](./images/09_opSStore.png)   
+
 1. 我们从定义了所有EVM操作码的instruments.go文件开始。在这个文件中，我们找到了 "opSstore "函数。
 
 2. 传入该函数的范围变量包含合同上下文，如堆栈、内存等。我们从堆栈中弹出2个值，并标记为loc（位置的缩写）和val（值的缩写）。
@@ -146,21 +158,28 @@ StateDB有一个createObject函数，可以创建一个新的stateObject，并�
 6. 在journal结构被更新后，storageObject的setState函数被调用，入参为key和value。这将更新storageObjects的dirtyStorage。
 好了，我们已经用key和value更新了stateObject的dirtyStorage。这实际上意味着什么，它与我们到目前为止所学的一切有什么关系?  
 
-让我们从代码中的dirtyStorage定义继续学习。
+让我们从代码中的dirtyStorage定义继续学习。  
+  
 ![10](./images/10_dirtyStorage.png)  
 1. dirtyStorage被定义在stateObject结构中，它属于Storage类型，被描述为 "在当前交易执行中被修改的存储条目"。  
 2. 与dirtyStorage相对应的存储类型是common.Hash到common.Hash的简单映射。  
 3. Hash类型只是一个长度为HashLength的数组。  
 4. HashLength是一个常数，定义为32  
-这对你来说应该很熟悉，一个32字节的key映射到一个32字节的value。这正是我们在EVM深度探讨的第三部分中从概念上看待合约storage存储空间的方式。 
-你可能已经注意到stateObject中的pendingStorage和originStorage就在dirtyStorage字段的上方。它们都是相关的，在最终确定过程中，dirtyStorage被复制到pendingStorage，而pendingStorage在 trie被更新时又被复制到originStorage。 
-在 trie 被更新后，StateAccount 的 "存储根 "也将在 StateDB 的 "提交 "中被更新。这将把新的状态写入底层的内存 trie 数据库中。  
+这对你来说应该很熟悉，一个32字节的key映射到一个32字节的value。这正是我们在EVM深度探讨的第三部分中从概念上看待合约storage存储空间的方式。   
+
+你可能已经注意到stateObject中的pendingStorage和originStorage就在dirtyStorage字段的上方。它们都是相关的，在最终确定过程中，dirtyStorage被复制到pendingStorage，而pendingStorage在 trie被更新时又被复制到originStorage。    
+   
+在 trie 被更新后，StateAccount 的 "存储根 "也将在 StateDB 的 "提交 "中被更新。这将把新的状态写入底层的内存 trie 数据库中。    
+    
 现在到了拼图的最后一块，SLOAD。
 
 # SLOAD
-让我们再次快速回忆，SLOAD操作码做什么。
-它从堆栈中弹出1个值，32字节的key，它代表存储槽，并返回存储在那里的32字节的value。 
-下面是SLOAD操作码的Geth代码流程，让我们看一下它的作用  
+让我们再次快速回忆，SLOAD操作码做什么。  
+  
+它从堆栈中弹出1个值，32字节的key，它代表存储槽，并返回存储在那里的32字节的value。   
+   
+下面是SLOAD操作码的Geth代码流程，让我们看一下它的作用    
+    
 ![11](./images/11_sload.png)  
 1. 我们再次从 instructions.go 文件开始，在那里我们可以找到 "opSload "函数。我们使用peek从堆栈的顶部抓取SLOAD的位置（存储槽）。
 
@@ -175,13 +194,13 @@ StateDB有一个createObject函数，可以创建一个新的stateObject，并�
 
 7. 如果上述方法都没有返回，就去找originStorage，从那里检索并返回值。
 你会注意到，该函数试图先返回dirtyStorage，然后是pendingStorage，最后是originStorage。这是有道理的，在执行过程中，dirtyStorage是最新的存储映射，其次是pending，然后是originStorage。
-
-一个交易可以多次操作一个存储槽，所以我们必须确保我们有最新的值。
-
-让我们想象一下，在同一交易中，在同一存储槽的SLOAD之前，发生了一个SSTORE。在这种情况下，dirtyStorage将在SSTORE中被更新，在SLOAD中被返回。
-
-到这里，你应该对SSTORE和SLOAD是如何在Geth客户端层面实现的有了了解。它们如何与状态和存储对象互动，以及更新存储槽与更广泛的以太坊 "世界状态 "的关系。
-
-这很紧张，但你做到了。我猜这篇文章给你留下了比你开始之前更多的问题，但这也是加密货币的乐趣之一。
+   
+一个交易可以多次操作一个存储槽，所以我们必须确保我们有最新的值。   
+   
+让我们想象一下，在同一交易中，在同一存储槽的SLOAD之前，发生了一个SSTORE。在这种情况下，dirtyStorage将在SSTORE中被更新，在SLOAD中被返回。   
+    
+到这里，你应该对SSTORE和SLOAD是如何在Geth客户端层面实现的有了了解。它们如何与状态和存储对象互动，以及更新存储槽与更广泛的以太坊 "世界状态 "的关系。   
+    
+这很紧张，但你做到了。我猜这篇文章给你留下了比你开始之前更多的问题，但这也是加密货币的乐趣之一。    
 
 继续磨练吧，伙计。
